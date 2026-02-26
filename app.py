@@ -32,9 +32,14 @@ class CableRow:
     b_interface: str = ""
     a_endpoint: str = ""
     b_endpoint: str = ""
+    a_type: str = "Unknown"
+    b_type: str = "Unknown"
+    a_kind: str = "interface"
+    b_kind: str = "interface"
     cable_label: str = ""
     cable_type: str = "Unknown"
     cable_color: str = "#64748b"
+    domain: str = "data"
     edge_label: str = ""
     raw: dict[str, Any] = field(default_factory=dict)
 
@@ -67,8 +72,10 @@ def choose_columns(headers: list[str]) -> dict[str, str | None]:
     return {
         "a_device": find_column(headers, [r"terminationa.*device", r"sidea.*device", r"devicea", r"adevice"]),
         "a_port": find_column(headers, [r"terminationa.*(name|port)", r"^terminationa$", r"interfacea", r"porta", r"aname"]),
+        "a_type": find_column(headers, [r"terminationa.*type", r"sidea.*type", r"^atype$", r"endpa.*type"]),
         "b_device": find_column(headers, [r"terminationb.*device", r"sideb.*device", r"deviceb", r"bdevice"]),
         "b_port": find_column(headers, [r"terminationb.*(name|port)", r"^terminationb$", r"interfaceb", r"portb", r"bname"]),
+        "b_type": find_column(headers, [r"terminationb.*type", r"sideb.*type", r"^btype$", r"endpb.*type"]),
         "cable_id": find_column(headers, [r"^id$", r"cable.*id", r"^pk$", r"objectid"]),
         "cable_label": find_column(headers, [r"^label$", r"cable.*label", r"name"]),
         "cable_type": find_column(headers, [r"^type$", r"cable.*type", r"mediatype"]),
@@ -99,6 +106,42 @@ def infer_device_interface(device: str, termination: str, side: str) -> tuple[st
             return m.group(1).strip(), m.group(2).strip()
         return f"Unassigned-{side}", term
     return f"Unknown-{side}", "(unknown-interface)"
+
+
+def normalize_endpoint_type(endpoint_type: str) -> str:
+    return normalize(endpoint_type)
+
+
+def classify_endpoint_kind(endpoint_type: str) -> str:
+    t = normalize_endpoint_type(endpoint_type)
+    if "frontport" in t:
+        return "front_port"
+    if "rearport" in t:
+        return "rear_port"
+    if "circuittermination" in t:
+        return "circuit_termination"
+    if "powerport" in t:
+        return "power_port"
+    if "poweroutlet" in t:
+        return "power_outlet"
+    if "powerfeed" in t:
+        return "power_feed"
+    return "interface"
+
+
+def infer_domain(a_kind: str, b_kind: str) -> str:
+    kinds = {a_kind, b_kind}
+    if any(k in kinds for k in {"power_port", "power_outlet", "power_feed"}):
+        return "power"
+    if "circuit_termination" in kinds:
+        return "circuit"
+    if any(k in kinds for k in {"front_port", "rear_port"}):
+        return "pass_through"
+    return "data"
+
+
+def node_id(kind: str, endpoint: str) -> str:
+    return f"{kind}|{endpoint}"
 
 
 TYPE_PALETTE = [
@@ -168,6 +211,8 @@ def parse_cables_csv(file_bytes: bytes) -> tuple[list[CableRow], dict[str, str |
 
         a_device, a_port = infer_device_interface(raw_a_device, raw_a_port, "A")
         b_device, b_port = infer_device_interface(raw_b_device, raw_b_port, "B")
+        a_type = (row.get(columns["a_type"] or "", "") or "").strip() if columns["a_type"] else ""
+        b_type = (row.get(columns["b_type"] or "", "") or "").strip() if columns["b_type"] else ""
 
         a_endpoint = build_endpoint(a_device, a_port)
         b_endpoint = build_endpoint(b_device, b_port)
@@ -192,6 +237,9 @@ def parse_cables_csv(file_bytes: bytes) -> tuple[list[CableRow], dict[str, str |
 
         cable_color = normalize_color(raw_color, cable_type)
         edge_label = f"{cable_label} [{cable_type}]"
+        a_kind = classify_endpoint_kind(a_type)
+        b_kind = classify_endpoint_kind(b_type)
+        domain = infer_domain(a_kind, b_kind)
 
         rows.append(
             CableRow(
@@ -201,9 +249,14 @@ def parse_cables_csv(file_bytes: bytes) -> tuple[list[CableRow], dict[str, str |
                 b_interface=b_port,
                 a_endpoint=a_endpoint or f"Unknown-A-{idx}",
                 b_endpoint=b_endpoint or f"Unknown-B-{idx}",
+                a_type=a_type or "Unknown",
+                b_type=b_type or "Unknown",
+                a_kind=a_kind,
+                b_kind=b_kind,
                 cable_label=cable_label,
                 cable_type=cable_type,
                 cable_color=cable_color,
+                domain=domain,
                 edge_label=edge_label,
                 raw=row,
             )
@@ -265,6 +318,7 @@ def build_graph(rows: list[CableRow]) -> tuple[list[dict[str, Any]], list[dict[s
                     "cable_label": row.cable_label,
                     "cable_type": row.cable_type,
                     "color": row.cable_color,
+                    "domain": row.domain,
                 }
             }
         )
@@ -441,6 +495,7 @@ def upload() -> str:
     device_nodes, device_edges = build_device_graph(rows)
     missing = [name for name, col in columns.items() if col is None and name in {"a_device", "a_port", "b_device", "b_port"}]
     type_counter = Counter(r.cable_type for r in rows)
+    endpoint_kind_counter = Counter([r.a_kind for r in rows] + [r.b_kind for r in rows])
     legend_map: dict[str, str] = {}
     for r in rows:
         legend_map.setdefault(r.cable_type, r.cable_color)
@@ -448,6 +503,20 @@ def upload() -> str:
         {"type": cable_type, "count": count, "color": legend_map.get(cable_type, "#64748b")}
         for cable_type, count in type_counter.most_common()
     ]
+    kind_labels = {
+        "interface": "Interface",
+        "front_port": "FrontPort",
+        "rear_port": "RearPort",
+        "circuit_termination": "CircuitTermination",
+        "power_port": "PowerPort",
+        "power_outlet": "PowerOutlet",
+        "power_feed": "PowerFeed",
+    }
+    node_legend = [
+        {"kind": kind, "label": kind_labels.get(kind, kind), "count": count}
+        for kind, count in endpoint_kind_counter.most_common()
+    ]
+
     result_id = store_result(
         original_filename=file.filename,
         file_bytes=file_bytes,
@@ -472,6 +541,7 @@ def upload() -> str:
         type_legend=type_legend,
         result_id=result_id,
         recent_results=list_recent_results(),
+        node_legend=node_legend,
     )
 
 
@@ -493,6 +563,20 @@ def result_detail(result_id: int) -> str:
     columns = json.loads(record["columns_json"])
     type_legend = json.loads(record["type_legend_json"])
     missing = [name for name, col in columns.items() if col is None and name in {"a_device", "a_port", "b_device", "b_port"}]
+    endpoint_kind_counter = Counter([r.a_kind for r in rows] + [r.b_kind for r in rows])
+    kind_labels = {
+        "interface": "Interface",
+        "front_port": "FrontPort",
+        "rear_port": "RearPort",
+        "circuit_termination": "CircuitTermination",
+        "power_port": "PowerPort",
+        "power_outlet": "PowerOutlet",
+        "power_feed": "PowerFeed",
+    }
+    node_legend = [
+        {"kind": kind, "label": kind_labels.get(kind, kind), "count": count}
+        for kind, count in endpoint_kind_counter.most_common()
+    ]
 
     return render_template(
         "index.html",
@@ -506,6 +590,7 @@ def result_detail(result_id: int) -> str:
         columns=columns,
         missing=missing,
         type_legend=type_legend,
+        node_legend=node_legend,
         result_id=result_id,
         recent_results=list_recent_results(),
     )

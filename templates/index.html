@@ -75,6 +75,23 @@
         </section>
       {% endif %}
 
+      {% if node_legend %}
+        <section class="legend">
+          <h2>Endpoint 種別凡例</h2>
+          <table>
+            <thead><tr><th>種別</th><th>件数</th></tr></thead>
+            <tbody>
+            {% for n in node_legend %}
+              <tr>
+                <td>{{ n.label }}</td>
+                <td>{{ n.count }}</td>
+              </tr>
+            {% endfor %}
+            </tbody>
+          </table>
+        </section>
+      {% endif %}
+
       {% if missing %}
         <p class="warn">推定できなかった列: {{ ', '.join(missing) }}</p>
       {% endif %}
@@ -100,17 +117,20 @@
       <details>
         <summary>接続一覧</summary>
         <table>
-          <thead><tr><th>A Device</th><th>A Interface</th><th>B Device</th><th>B Interface</th><th>ケーブル</th><th>Type</th><th>Color</th></tr></thead>
+          <thead><tr><th>A Device</th><th>A Interface</th><th>A終端タイプ</th><th>B Device</th><th>B Interface</th><th>B終端タイプ</th><th>ケーブル</th><th>Cable Type</th><th>Color</th><th>Domain</th></tr></thead>
           <tbody>
           {% for r in rows %}
             <tr>
               <td>{{ r.a_device }}</td>
               <td>{{ r.a_interface }}</td>
+              <td>{{ r.a_type }}</td>
               <td>{{ r.b_device }}</td>
               <td>{{ r.b_interface }}</td>
+              <td>{{ r.b_type }}</td>
               <td>{{ r.cable_label }}</td>
               <td>{{ r.cable_type }}</td>
               <td><span class="swatch" style="--swatch: {{ r.cable_color }}"></span>{{ r.cable_color }}</td>
+              <td>{{ r.domain }}</td>
             </tr>
           {% endfor %}
           </tbody>
@@ -152,6 +172,30 @@
                 'width': 72,
                 'height': 28,
               }
+            },
+            {
+              selector: 'node[kind = "front_port"]',
+              style: { 'shape': 'round-rectangle', 'background-color': '#a16207' }
+            },
+            {
+              selector: 'node[kind = "rear_port"]',
+              style: { 'shape': 'diamond', 'background-color': '#b45309' }
+            },
+            {
+              selector: 'node[kind = "circuit_termination"]',
+              style: { 'shape': 'hexagon', 'background-color': '#1d4ed8' }
+            },
+            {
+              selector: 'node[kind = "power_port"]',
+              style: { 'shape': 'triangle', 'background-color': '#dc2626' }
+            },
+            {
+              selector: 'node[kind = "power_outlet"]',
+              style: { 'shape': 'rectangle', 'background-color': '#ea580c' }
+            },
+            {
+              selector: 'node[kind = "power_feed"]',
+              style: { 'shape': 'star', 'background-color': '#c2410c' }
             },
             {
               selector: 'edge',
