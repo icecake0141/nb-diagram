@@ -323,7 +323,9 @@
               style: {
                 'width': 'mapData(count, 1, 8, 2, 6)',
                 'line-color': 'data(color)',
-                'curve-style': 'bezier',
+                'curve-style': 'unbundled-bezier',
+                'control-point-distances': 'data(curve_offset)',
+                'control-point-weights': 0.5,
                 'label': 'data(label)',
                 'font-size': 8,
                 'text-background-color': '#fff',
@@ -505,11 +507,59 @@
             .nodes('node.rack-group')
             .map((n) => n.data('label') || 'UNASSIGNED')
             .sort((a, b) => String(a).localeCompare(String(b)));
-          const rackGap = 420;
           const rackCenterMap = new Map();
-          const rackStart = width / 2 - ((rackOrder.length - 1) * rackGap) / 2;
-          rackOrder.forEach((rack, i) => rackCenterMap.set(rack, rackStart + i * rackGap));
+          const rackWidthMap = new Map();
+          const rackMargin = 260;
+
+          const roleGap = {
+            external: 300,
+            patch_panel: 220,
+            core: 320,
+            leaf: 220,
+            power_source: 240,
+            pdu: 210,
+            powered_device: 170,
+            server: 170,
+          };
+          const roleNodesMap = {
+            external: roleNodes.external,
+            patch_panel: roleNodes.patch_panel,
+            core: roleNodes.core,
+            leaf: roleNodes.leaf,
+            power_source: roleNodes.power_source,
+            pdu: roleNodes.pdu,
+            powered_device: roleNodes.powered_device,
+            server: roleNodes.server,
+          };
+
+          const countByRackRole = new Map();
+          Object.entries(roleNodesMap).forEach(([role, nodes]) => {
+            nodes.forEach((n) => {
+              const rack = n.data('rack') || 'UNASSIGNED';
+              const k = `${rack}::${role}`;
+              countByRackRole.set(k, (countByRackRole.get(k) || 0) + 1);
+            });
+          });
+
+          rackOrder.forEach((rack) => {
+            let required = 280;
+            Object.keys(roleNodesMap).forEach((role) => {
+              const c = countByRackRole.get(`${rack}::${role}`) || 0;
+              if (c > 1) required = Math.max(required, (c - 1) * roleGap[role] + 220);
+              if (c === 1) required = Math.max(required, 240);
+            });
+            rackWidthMap.set(rack, required);
+          });
+
+          const totalWidth = rackOrder.reduce((acc, r) => acc + (rackWidthMap.get(r) || 280), 0) + rackMargin * Math.max(0, rackOrder.length - 1);
+          let cursor = width / 2 - totalWidth / 2;
+          rackOrder.forEach((rack) => {
+            const w = rackWidthMap.get(rack) || 280;
+            rackCenterMap.set(rack, cursor + w / 2);
+            cursor += w + rackMargin;
+          });
           const rackCenter = (rack) => rackCenterMap.get(rack) || width / 2;
+          const rackWidth = (rack) => rackWidthMap.get(rack) || 280;
 
           roleNodes.external.sort((a, b) => (deg.get(b.id()) || 0) - (deg.get(a.id()) || 0));
           const externalX = spreadX(roleNodes.external, width / 2, 360);
@@ -587,7 +637,8 @@
             byRackLeaf.get(r).push(n);
           });
           for (const [r, nodes] of byRackLeaf.entries()) {
-            const xs = spreadX(nodes, rackCenter(r), 200);
+            const gap = Math.max(170, Math.floor((rackWidth(r) - 120) / Math.max(1, nodes.length)));
+            const xs = spreadX(nodes, rackCenter(r), gap);
             nodes.forEach((n) => { positions[n.id()] = { x: xs[n.id()], y: yMap.leaf }; });
           }
 
@@ -611,7 +662,8 @@
               byRack.get(rack).push(n);
             });
             for (const [rack, rackNodes] of byRack.entries()) {
-              const xs = spreadX(rackNodes, leafCenter(rack), gap);
+              const dynGap = Math.max(Math.floor(gap * 0.7), Math.floor((rackWidth(rack) - 100) / Math.max(1, rackNodes.length)));
+              const xs = spreadX(rackNodes, leafCenter(rack), dynGap);
               rackNodes.forEach((n) => {
                 positions[n.id()] = { x: xs[n.id()], y: yMap[roleName] };
               });
@@ -643,6 +695,7 @@
             }
           });
           cy.fit(cy.elements(':visible'), 40);
+          assignEdgeCurves();
         }
 
         function applyReadableSpacing() {
@@ -660,6 +713,30 @@
               const dx = cur.position('x') - prev.position('x');
               if (dx < minGap) cur.position('x', prev.position('x') + minGap);
             }
+          });
+          assignEdgeCurves();
+        }
+
+        function assignEdgeCurves() {
+          const grouped = new Map();
+          cy.edges(':visible').forEach((e) => {
+            const s = e.source().id();
+            const t = e.target().id();
+            const key = s < t ? `${s}||${t}` : `${t}||${s}`;
+            if (!grouped.has(key)) grouped.set(key, []);
+            grouped.get(key).push(e);
+          });
+          grouped.forEach((edges) => {
+            if (edges.length === 1) {
+              edges[0].data('curve_offset', 0);
+              return;
+            }
+            const step = 26;
+            edges.forEach((e, i) => {
+              const n = Math.floor(i / 2) + 1;
+              const sign = i % 2 === 0 ? 1 : -1;
+              e.data('curve_offset', n * step * sign);
+            });
           });
         }
 
