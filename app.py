@@ -341,9 +341,29 @@ def build_graph(rows: list[CableRow]) -> tuple[list[dict[str, Any]], list[dict[s
 def build_device_graph(rows: list[CableRow]) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
     device_nodes: set[str] = set()
     rack_by_device: dict[str, str] = {}
+    endpoint_kinds_by_device: dict[str, Counter[str]] = {}
     pair_counter: dict[tuple[str, str], int] = {}
     pair_types: dict[tuple[str, str], Counter[str]] = {}
     pair_colors: dict[tuple[str, str], Counter[str]] = {}
+    pair_domains: dict[tuple[str, str], Counter[str]] = {}
+
+    def bump_kind(device: str, kind: str) -> None:
+        if device not in endpoint_kinds_by_device:
+            endpoint_kinds_by_device[device] = Counter()
+        endpoint_kinds_by_device[device][kind] += 1
+
+    def infer_role_hint(kind_counter: Counter[str]) -> str:
+        if kind_counter.get("circuit_termination", 0) > 0:
+            return "external"
+        if kind_counter.get("front_port", 0) > 0 or kind_counter.get("rear_port", 0) > 0:
+            return "patch_panel"
+        if kind_counter.get("power_feed", 0) > 0:
+            return "power_source"
+        if kind_counter.get("power_outlet", 0) > 0:
+            return "pdu"
+        if kind_counter.get("power_port", 0) > 0:
+            return "powered_device"
+        return "unknown"
 
     for row in rows:
         dev_a = row.a_device
@@ -354,6 +374,8 @@ def build_device_graph(rows: list[CableRow]) -> tuple[list[dict[str, Any]], list
         device_nodes.add(dev_b)
         rack_by_device.setdefault(dev_a, row.rack_a.strip())
         rack_by_device.setdefault(dev_b, row.rack_b.strip())
+        bump_kind(dev_a, row.a_kind)
+        bump_kind(dev_b, row.b_kind)
 
         key = tuple(sorted((dev_a, dev_b)))
         pair_counter[key] = pair_counter.get(key, 0) + 1
@@ -363,10 +385,15 @@ def build_device_graph(rows: list[CableRow]) -> tuple[list[dict[str, Any]], list
         if key not in pair_colors:
             pair_colors[key] = Counter()
         pair_colors[key][row.cable_color] += 1
+        if key not in pair_domains:
+            pair_domains[key] = Counter()
+        pair_domains[key][row.domain] += 1
 
     nodes: list[dict[str, Any]] = []
     edges: list[dict[str, Any]] = []
     for dev in sorted(device_nodes):
+        kind_counter = endpoint_kinds_by_device.get(dev, Counter())
+        role_hint = infer_role_hint(kind_counter)
         nodes.append(
             {
                 "data": {
@@ -374,6 +401,7 @@ def build_device_graph(rows: list[CableRow]) -> tuple[list[dict[str, Any]], list
                     "label": dev,
                     "node_type": "device",
                     "rack": rack_by_device.get(dev, "") or "UNASSIGNED",
+                    "role_hint": role_hint,
                 },
                 "classes": "device-summary",
             }
@@ -383,6 +411,7 @@ def build_device_graph(rows: list[CableRow]) -> tuple[list[dict[str, Any]], list
         a, b = pair
         top_type = pair_types[pair].most_common(1)[0][0] if pair_types[pair] else "Unknown"
         top_color = pair_colors[pair].most_common(1)[0][0] if pair in pair_colors and pair_colors[pair] else "#64748b"
+        top_domain = pair_domains[pair].most_common(1)[0][0] if pair in pair_domains and pair_domains[pair] else "data"
         edges.append(
             {
                 "data": {
@@ -392,6 +421,7 @@ def build_device_graph(rows: list[CableRow]) -> tuple[list[dict[str, Any]], list
                     "label": f"{count} links ({top_type})",
                     "count": count,
                     "color": top_color,
+                    "domain": top_domain,
                 }
             }
         )
