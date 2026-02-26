@@ -1,6 +1,16 @@
 # NetBox Cable Diagram Generator
 
-NetBox の `Cables` CSV (Export) から、結線図を自動生成する Python Web ツールです。
+NetBox の `Cables` CSV から、デバイス間の集約トポロジ図を生成する Flask アプリです。
+
+## 主な機能
+
+- CSV をアップロードしてトポロジを生成
+- デバイス間を集約したグラフ表示（リンク本数をエッジ幅に反映）
+- 自動ロール分類（`core` / `leaf` / `server`）と読みやすい配置
+- ラック単位フィルタ、コンポーネント単位フィルタ、サーバ表示ON/OFF
+- サーバをラックごとに折りたたみ表示
+- `Type / Color` 凡例、Endpoint 種別凡例、接続一覧テーブル表示
+- 結果を永続化し、過去結果の再表示と CSV/JSON ダウンロード
 
 ## セットアップ
 
@@ -11,52 +21,51 @@ pip install -r requirements.txt
 python app.py
 ```
 
-ブラウザで `http://localhost:8000` を開き、CSVをアップロードしてください。
+起動後に `http://localhost:8000` を開いて CSV をアップロードします。
 
 ## 保存仕様（永続化）
 
-- 生成履歴のメタデータは `data/results.db` (SQLite) に保存
-- アップロードしたCSVは `data/uploads/` に保存
-- 生成した図データ（Cytoscape要素JSON）と行データは `data/results/` に保存
-- 画面上の「保存済み結果」テーブルから、過去結果の再表示・CSV/JSONダウンロードが可能
+- メタデータ: `data/results.db` (SQLite)
+- アップロード CSV: `data/uploads/`
+- 生成グラフ JSON / 行データ JSON: `data/results/`
+- 保存済み結果はトップ画面の「保存済み結果」から再表示可能
 
-## 想定CSV列
+## CSV 列マッピング
 
-次のような列名を自動検出します（多少の揺らぎに対応）:
+列名は正規化して自動検出します（記号・大文字小文字の揺らぎに対応）。
 
-- `Device A`
-- `Termination A`
-- `Termination A Type` (任意)
-- `Termination B`
-- `Device B`
-- `Termination B Type` (任意)
-- `Label` (任意)
-- `ID` (任意)
-- `Type` (任意)
-- `Color` (任意)
+- 必須: A/B 側の device と port に相当する列
+  - 例: `Termination A Device`, `Termination A Name`, `Termination B Device`, `Termination B Name`
+- 任意:
+  - `Termination A Type`, `Termination B Type`
+  - `ID`, `Label`, `Type`, `Color`
+  - `Rack A`, `Rack B`
+  - `Location A`, `Location B`
 
-## 反映ルール
+主要列が検出できない場合、画面に「推定できなかった列」が表示されます。
 
-- `Label` が空なら `Cable-{ID}` を使用
-- `Type` が空なら `Unknown` を使用
-- `Color` が `#RRGGBB` 形式ならそのまま線色に利用
-- `Color` が空/不正なら `Type` ごとの固定パレット色を自動割当
+## データ変換ルール
 
-## コネクション種別の扱い
+- 文字コードは `utf-8-sig` / `utf-8` / `cp932` / `shift_jis` を自動判定
+- `Label` が空の場合は `Cable-{ID}`（`ID` もない場合は行番号）を採用
+- `Type` が空の場合は `Unknown`
+- `Color` が `#RRGGBB` 形式ならそのまま利用
+- `Color` が空/不正なら `Type` から安定ハッシュで色を割り当て
+- 終端タイプから endpoint 種別を判定:
+  - `front_port`, `rear_port`, `circuit_termination`, `power_port`, `power_outlet`, `power_feed`, `interface`
+- endpoint 種別からドメインを判定:
+  - `data` / `pass_through` / `circuit` / `power`
 
-`Termination A/B Type` がある場合、終端を次の種別に分類して表示します。
+## 画面とエンドポイント
 
-- `dcim.frontport` -> `FrontPort`
-- `dcim.rearport` -> `RearPort`
-- `circuits.circuittermination` -> `CircuitTermination`
-- `dcim.powerport` -> `PowerPort`
-- `dcim.poweroutlet` -> `PowerOutlet`
-- `dcim.powerfeed` -> `PowerFeed`
-- その他/未検出 -> `Interface`
-
-エッジは終端種別から `data` / `pass_through` / `circuit` / `power` に分類し、線種を切り替えて描画します。
+- `GET /`: 初期画面（保存済み結果一覧）
+- `POST /upload`: CSV 解析、グラフ生成、保存
+- `GET /result/<id>`: 保存済み結果の再表示
+- `GET /files/<id>/csv`: 元 CSV ダウンロード
+- `GET /files/<id>/graph`: グラフ JSON ダウンロード
 
 ## 補足
 
-- レイアウト描画は Cytoscape.js (CDN) を利用
-- 列名の形式が大きく異なる場合は、`app.py` の `choose_columns()` の正規表現を追加
+- バックエンド: Flask 3.1
+- フロント描画: Cytoscape.js
+- 列名ルールを増やす場合は `app.py` の `choose_columns()` を更新してください
