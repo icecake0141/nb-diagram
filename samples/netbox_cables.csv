@@ -1,0 +1,325 @@
+ID,Label,Device A,Termination A,Termination A Type,Termination B,Termination B Type,Device B,Type,Status,Color,Location A,Location B,Rack A,Rack B
+1,SPINE-PEER-01,cr1-spine01,Ethernet1/53,Interface,Ethernet1/53,Interface,cr1-spine02,DAC-100G,Connected,#9c27b0,DC1-ROW-A,DC1-ROW-A,CORE-RACK-01,CORE-RACK-01
+2,SPINE-PEER-02,cr1-spine01,Ethernet1/54,Interface,Ethernet1/54,Interface,cr1-spine02,DAC-100G,Connected,#9c27b0,DC1-ROW-A,DC1-ROW-A,CORE-RACK-01,CORE-RACK-01
+3,EXT-carrier-a-S1,carrier-a,CT-1A,Circuit Termination,Ethernet1/41,Interface,cr1-spine01,SMF,Connected,#1d4ed8,DC1-ROW-A,DC1-ROW-A,CORE-RACK-01,CORE-RACK-01
+4,EXT-carrier-a-S2,carrier-a,CT-1B,Circuit Termination,Ethernet1/43,Interface,cr1-spine02,SMF,Connected,#1d4ed8,DC1-ROW-A,DC1-ROW-A,CORE-RACK-01,CORE-RACK-01
+5,EXT-carrier-b-S1,carrier-b,CT-2A,Circuit Termination,Ethernet1/42,Interface,cr1-spine01,SMF,Connected,#1d4ed8,DC1-ROW-A,DC1-ROW-A,CORE-RACK-01,CORE-RACK-01
+6,EXT-carrier-b-S2,carrier-b,CT-2B,Circuit Termination,Ethernet1/44,Interface,cr1-spine02,SMF,Connected,#1d4ed8,DC1-ROW-A,DC1-ROW-A,CORE-RACK-01,CORE-RACK-01
+7,UPLINK-sr01-leaf01-cr1-spine01-L1,sr01-leaf01,Ethernet1/49,Interface,Ethernet1/1,Interface,cr1-spine01,OM4-MMF-100G,Connected,#ff9800,DC1-ROW-B,DC1-ROW-A,SERVER-RACK-01,CORE-RACK-01
+8,UPLINK-sr01-leaf01-cr1-spine01-L2,sr01-leaf01,Ethernet1/51,Interface,Ethernet1/2,Interface,cr1-spine01,OM4-MMF-100G,Connected,#ff9800,DC1-ROW-B,DC1-ROW-A,SERVER-RACK-01,CORE-RACK-01
+9,UPLINK-sr01-leaf01-cr1-spine02-L1,sr01-leaf01,Ethernet1/49,Interface,Ethernet1/1,Interface,cr1-spine02,OM4-MMF-100G,Connected,#ff9800,DC1-ROW-B,DC1-ROW-A,SERVER-RACK-01,CORE-RACK-01
+10,UPLINK-sr01-leaf01-cr1-spine02-L2,sr01-leaf01,Ethernet1/51,Interface,Ethernet1/2,Interface,cr1-spine02,OM4-MMF-100G,Connected,#ff9800,DC1-ROW-B,DC1-ROW-A,SERVER-RACK-01,CORE-RACK-01
+11,UPLINK-sr01-leaf02-cr1-spine01-L1,sr01-leaf02,Ethernet1/51,Interface,Ethernet1/3,Interface,cr1-spine01,OM4-MMF-100G,Connected,#ff9800,DC1-ROW-B,DC1-ROW-A,SERVER-RACK-01,CORE-RACK-01
+12,UPLINK-sr01-leaf02-cr1-spine01-L2,sr01-leaf02,Ethernet1/53,Interface,Ethernet1/4,Interface,cr1-spine01,OM4-MMF-100G,Connected,#ff9800,DC1-ROW-B,DC1-ROW-A,SERVER-RACK-01,CORE-RACK-01
+13,UPLINK-sr01-leaf02-cr1-spine02-L1,sr01-leaf02,Ethernet1/51,Interface,Ethernet1/3,Interface,cr1-spine02,OM4-MMF-100G,Connected,#ff9800,DC1-ROW-B,DC1-ROW-A,SERVER-RACK-01,CORE-RACK-01
+14,UPLINK-sr01-leaf02-cr1-spine02-L2,sr01-leaf02,Ethernet1/53,Interface,Ethernet1/4,Interface,cr1-spine02,OM4-MMF-100G,Connected,#ff9800,DC1-ROW-B,DC1-ROW-A,SERVER-RACK-01,CORE-RACK-01
+15,UPLINK-sr02-leaf01-cr1-spine01-L1,sr02-leaf01,Ethernet1/53,Interface,Ethernet1/5,Interface,cr1-spine01,OM4-MMF-100G,Connected,#ff9800,DC1-ROW-B,DC1-ROW-A,SERVER-RACK-02,CORE-RACK-01
+16,UPLINK-sr02-leaf01-cr1-spine01-L2,sr02-leaf01,Ethernet1/55,Interface,Ethernet1/6,Interface,cr1-spine01,OM4-MMF-100G,Connected,#ff9800,DC1-ROW-B,DC1-ROW-A,SERVER-RACK-02,CORE-RACK-01
+17,UPLINK-sr02-leaf01-cr1-spine02-L1,sr02-leaf01,Ethernet1/53,Interface,Ethernet1/5,Interface,cr1-spine02,OM4-MMF-100G,Connected,#ff9800,DC1-ROW-B,DC1-ROW-A,SERVER-RACK-02,CORE-RACK-01
+18,UPLINK-sr02-leaf01-cr1-spine02-L2,sr02-leaf01,Ethernet1/55,Interface,Ethernet1/6,Interface,cr1-spine02,OM4-MMF-100G,Connected,#ff9800,DC1-ROW-B,DC1-ROW-A,SERVER-RACK-02,CORE-RACK-01
+19,UPLINK-sr02-leaf02-cr1-spine01-L1,sr02-leaf02,Ethernet1/49,Interface,Ethernet1/7,Interface,cr1-spine01,OM4-MMF-100G,Connected,#ff9800,DC1-ROW-B,DC1-ROW-A,SERVER-RACK-02,CORE-RACK-01
+20,UPLINK-sr02-leaf02-cr1-spine01-L2,sr02-leaf02,Ethernet1/51,Interface,Ethernet1/8,Interface,cr1-spine01,OM4-MMF-100G,Connected,#ff9800,DC1-ROW-B,DC1-ROW-A,SERVER-RACK-02,CORE-RACK-01
+21,UPLINK-sr02-leaf02-cr1-spine02-L1,sr02-leaf02,Ethernet1/49,Interface,Ethernet1/7,Interface,cr1-spine02,OM4-MMF-100G,Connected,#ff9800,DC1-ROW-B,DC1-ROW-A,SERVER-RACK-02,CORE-RACK-01
+22,UPLINK-sr02-leaf02-cr1-spine02-L2,sr02-leaf02,Ethernet1/51,Interface,Ethernet1/8,Interface,cr1-spine02,OM4-MMF-100G,Connected,#ff9800,DC1-ROW-B,DC1-ROW-A,SERVER-RACK-02,CORE-RACK-01
+23,UPLINK-sr03-leaf01-cr1-spine01-L1,sr03-leaf01,Ethernet1/51,Interface,Ethernet1/9,Interface,cr1-spine01,OM4-MMF-100G,Connected,#ff9800,DC1-ROW-C,DC1-ROW-A,SERVER-RACK-03,CORE-RACK-01
+24,UPLINK-sr03-leaf01-cr1-spine01-L2,sr03-leaf01,Ethernet1/53,Interface,Ethernet1/10,Interface,cr1-spine01,OM4-MMF-100G,Connected,#ff9800,DC1-ROW-C,DC1-ROW-A,SERVER-RACK-03,CORE-RACK-01
+25,UPLINK-sr03-leaf01-cr1-spine02-L1,sr03-leaf01,Ethernet1/51,Interface,Ethernet1/9,Interface,cr1-spine02,OM4-MMF-100G,Connected,#ff9800,DC1-ROW-C,DC1-ROW-A,SERVER-RACK-03,CORE-RACK-01
+26,UPLINK-sr03-leaf01-cr1-spine02-L2,sr03-leaf01,Ethernet1/53,Interface,Ethernet1/10,Interface,cr1-spine02,OM4-MMF-100G,Connected,#ff9800,DC1-ROW-C,DC1-ROW-A,SERVER-RACK-03,CORE-RACK-01
+27,UPLINK-sr03-leaf02-cr1-spine01-L1,sr03-leaf02,Ethernet1/53,Interface,Ethernet1/11,Interface,cr1-spine01,OM4-MMF-100G,Connected,#ff9800,DC1-ROW-C,DC1-ROW-A,SERVER-RACK-03,CORE-RACK-01
+28,UPLINK-sr03-leaf02-cr1-spine01-L2,sr03-leaf02,Ethernet1/55,Interface,Ethernet1/12,Interface,cr1-spine01,OM4-MMF-100G,Connected,#ff9800,DC1-ROW-C,DC1-ROW-A,SERVER-RACK-03,CORE-RACK-01
+29,UPLINK-sr03-leaf02-cr1-spine02-L1,sr03-leaf02,Ethernet1/53,Interface,Ethernet1/11,Interface,cr1-spine02,OM4-MMF-100G,Connected,#ff9800,DC1-ROW-C,DC1-ROW-A,SERVER-RACK-03,CORE-RACK-01
+30,UPLINK-sr03-leaf02-cr1-spine02-L2,sr03-leaf02,Ethernet1/55,Interface,Ethernet1/12,Interface,cr1-spine02,OM4-MMF-100G,Connected,#ff9800,DC1-ROW-C,DC1-ROW-A,SERVER-RACK-03,CORE-RACK-01
+31,UPLINK-sr04-leaf01-cr1-spine01-L1,sr04-leaf01,Ethernet1/49,Interface,Ethernet1/13,Interface,cr1-spine01,OM4-MMF-100G,Connected,#ff9800,DC1-ROW-C,DC1-ROW-A,SERVER-RACK-04,CORE-RACK-01
+32,UPLINK-sr04-leaf01-cr1-spine01-L2,sr04-leaf01,Ethernet1/51,Interface,Ethernet1/14,Interface,cr1-spine01,OM4-MMF-100G,Connected,#ff9800,DC1-ROW-C,DC1-ROW-A,SERVER-RACK-04,CORE-RACK-01
+33,UPLINK-sr04-leaf01-cr1-spine02-L1,sr04-leaf01,Ethernet1/49,Interface,Ethernet1/13,Interface,cr1-spine02,OM4-MMF-100G,Connected,#ff9800,DC1-ROW-C,DC1-ROW-A,SERVER-RACK-04,CORE-RACK-01
+34,UPLINK-sr04-leaf01-cr1-spine02-L2,sr04-leaf01,Ethernet1/51,Interface,Ethernet1/14,Interface,cr1-spine02,OM4-MMF-100G,Connected,#ff9800,DC1-ROW-C,DC1-ROW-A,SERVER-RACK-04,CORE-RACK-01
+35,UPLINK-sr04-leaf02-cr1-spine01-L1,sr04-leaf02,Ethernet1/51,Interface,Ethernet1/15,Interface,cr1-spine01,OM4-MMF-100G,Connected,#ff9800,DC1-ROW-C,DC1-ROW-A,SERVER-RACK-04,CORE-RACK-01
+36,UPLINK-sr04-leaf02-cr1-spine01-L2,sr04-leaf02,Ethernet1/53,Interface,Ethernet1/16,Interface,cr1-spine01,OM4-MMF-100G,Connected,#ff9800,DC1-ROW-C,DC1-ROW-A,SERVER-RACK-04,CORE-RACK-01
+37,UPLINK-sr04-leaf02-cr1-spine02-L1,sr04-leaf02,Ethernet1/51,Interface,Ethernet1/15,Interface,cr1-spine02,OM4-MMF-100G,Connected,#ff9800,DC1-ROW-C,DC1-ROW-A,SERVER-RACK-04,CORE-RACK-01
+38,UPLINK-sr04-leaf02-cr1-spine02-L2,sr04-leaf02,Ethernet1/53,Interface,Ethernet1/16,Interface,cr1-spine02,OM4-MMF-100G,Connected,#ff9800,DC1-ROW-C,DC1-ROW-A,SERVER-RACK-04,CORE-RACK-01
+39,UPLINK-sr05-leaf01-cr1-spine01-L1,sr05-leaf01,Ethernet1/53,Interface,Ethernet1/17,Interface,cr1-spine01,OM4-MMF-100G,Connected,#ff9800,DC1-ROW-D,DC1-ROW-A,SERVER-RACK-05,CORE-RACK-01
+40,UPLINK-sr05-leaf01-cr1-spine01-L2,sr05-leaf01,Ethernet1/55,Interface,Ethernet1/18,Interface,cr1-spine01,OM4-MMF-100G,Connected,#ff9800,DC1-ROW-D,DC1-ROW-A,SERVER-RACK-05,CORE-RACK-01
+41,UPLINK-sr05-leaf01-cr1-spine02-L1,sr05-leaf01,Ethernet1/53,Interface,Ethernet1/17,Interface,cr1-spine02,OM4-MMF-100G,Connected,#ff9800,DC1-ROW-D,DC1-ROW-A,SERVER-RACK-05,CORE-RACK-01
+42,UPLINK-sr05-leaf01-cr1-spine02-L2,sr05-leaf01,Ethernet1/55,Interface,Ethernet1/18,Interface,cr1-spine02,OM4-MMF-100G,Connected,#ff9800,DC1-ROW-D,DC1-ROW-A,SERVER-RACK-05,CORE-RACK-01
+43,UPLINK-sr05-leaf02-cr1-spine01-L1,sr05-leaf02,Ethernet1/49,Interface,Ethernet1/19,Interface,cr1-spine01,OM4-MMF-100G,Connected,#ff9800,DC1-ROW-D,DC1-ROW-A,SERVER-RACK-05,CORE-RACK-01
+44,UPLINK-sr05-leaf02-cr1-spine01-L2,sr05-leaf02,Ethernet1/51,Interface,Ethernet1/20,Interface,cr1-spine01,OM4-MMF-100G,Connected,#ff9800,DC1-ROW-D,DC1-ROW-A,SERVER-RACK-05,CORE-RACK-01
+45,UPLINK-sr05-leaf02-cr1-spine02-L1,sr05-leaf02,Ethernet1/49,Interface,Ethernet1/19,Interface,cr1-spine02,OM4-MMF-100G,Connected,#ff9800,DC1-ROW-D,DC1-ROW-A,SERVER-RACK-05,CORE-RACK-01
+46,UPLINK-sr05-leaf02-cr1-spine02-L2,sr05-leaf02,Ethernet1/51,Interface,Ethernet1/20,Interface,cr1-spine02,OM4-MMF-100G,Connected,#ff9800,DC1-ROW-D,DC1-ROW-A,SERVER-RACK-05,CORE-RACK-01
+47,UPLINK-sr06-leaf01-cr1-spine01-L1,sr06-leaf01,Ethernet1/51,Interface,Ethernet1/21,Interface,cr1-spine01,OM4-MMF-100G,Connected,#ff9800,DC1-ROW-D,DC1-ROW-A,SERVER-RACK-06,CORE-RACK-01
+48,UPLINK-sr06-leaf01-cr1-spine01-L2,sr06-leaf01,Ethernet1/53,Interface,Ethernet1/22,Interface,cr1-spine01,OM4-MMF-100G,Connected,#ff9800,DC1-ROW-D,DC1-ROW-A,SERVER-RACK-06,CORE-RACK-01
+49,UPLINK-sr06-leaf01-cr1-spine02-L1,sr06-leaf01,Ethernet1/51,Interface,Ethernet1/21,Interface,cr1-spine02,OM4-MMF-100G,Connected,#ff9800,DC1-ROW-D,DC1-ROW-A,SERVER-RACK-06,CORE-RACK-01
+50,UPLINK-sr06-leaf01-cr1-spine02-L2,sr06-leaf01,Ethernet1/53,Interface,Ethernet1/22,Interface,cr1-spine02,OM4-MMF-100G,Connected,#ff9800,DC1-ROW-D,DC1-ROW-A,SERVER-RACK-06,CORE-RACK-01
+51,UPLINK-sr06-leaf02-cr1-spine01-L1,sr06-leaf02,Ethernet1/53,Interface,Ethernet1/23,Interface,cr1-spine01,OM4-MMF-100G,Connected,#ff9800,DC1-ROW-D,DC1-ROW-A,SERVER-RACK-06,CORE-RACK-01
+52,UPLINK-sr06-leaf02-cr1-spine01-L2,sr06-leaf02,Ethernet1/55,Interface,Ethernet1/24,Interface,cr1-spine01,OM4-MMF-100G,Connected,#ff9800,DC1-ROW-D,DC1-ROW-A,SERVER-RACK-06,CORE-RACK-01
+53,UPLINK-sr06-leaf02-cr1-spine02-L1,sr06-leaf02,Ethernet1/53,Interface,Ethernet1/23,Interface,cr1-spine02,OM4-MMF-100G,Connected,#ff9800,DC1-ROW-D,DC1-ROW-A,SERVER-RACK-06,CORE-RACK-01
+54,UPLINK-sr06-leaf02-cr1-spine02-L2,sr06-leaf02,Ethernet1/55,Interface,Ethernet1/24,Interface,cr1-spine02,OM4-MMF-100G,Connected,#ff9800,DC1-ROW-D,DC1-ROW-A,SERVER-RACK-06,CORE-RACK-01
+55,PP-SERVER-RACK-01-A,sr01-leaf01,Ethernet1/47,Interface,Front-01,Front Port,sr01-pp01,SMF,Connected,#7c3aed,DC1-ROW-B,DC1-ROW-B,SERVER-RACK-01,SERVER-RACK-01
+56,PP-SERVER-RACK-01-B,sr01-pp01,Rear-01,Rear Port,Ethernet1/47,Interface,sr01-leaf02,SMF,Connected,#7c3aed,DC1-ROW-B,DC1-ROW-B,SERVER-RACK-01,SERVER-RACK-01
+57,PP-SERVER-RACK-02-A,sr02-leaf01,Ethernet1/47,Interface,Front-01,Front Port,sr02-pp01,SMF,Connected,#7c3aed,DC1-ROW-B,DC1-ROW-B,SERVER-RACK-02,SERVER-RACK-02
+58,PP-SERVER-RACK-02-B,sr02-pp01,Rear-01,Rear Port,Ethernet1/47,Interface,sr02-leaf02,SMF,Connected,#7c3aed,DC1-ROW-B,DC1-ROW-B,SERVER-RACK-02,SERVER-RACK-02
+59,PP-SERVER-RACK-03-A,sr03-leaf01,Ethernet1/47,Interface,Front-01,Front Port,sr03-pp01,SMF,Connected,#7c3aed,DC1-ROW-C,DC1-ROW-C,SERVER-RACK-03,SERVER-RACK-03
+60,PP-SERVER-RACK-03-B,sr03-pp01,Rear-01,Rear Port,Ethernet1/47,Interface,sr03-leaf02,SMF,Connected,#7c3aed,DC1-ROW-C,DC1-ROW-C,SERVER-RACK-03,SERVER-RACK-03
+61,PP-SERVER-RACK-04-A,sr04-leaf01,Ethernet1/47,Interface,Front-01,Front Port,sr04-pp01,SMF,Connected,#7c3aed,DC1-ROW-C,DC1-ROW-C,SERVER-RACK-04,SERVER-RACK-04
+62,PP-SERVER-RACK-04-B,sr04-pp01,Rear-01,Rear Port,Ethernet1/47,Interface,sr04-leaf02,SMF,Connected,#7c3aed,DC1-ROW-C,DC1-ROW-C,SERVER-RACK-04,SERVER-RACK-04
+63,PP-SERVER-RACK-05-A,sr05-leaf01,Ethernet1/47,Interface,Front-01,Front Port,sr05-pp01,SMF,Connected,#7c3aed,DC1-ROW-D,DC1-ROW-D,SERVER-RACK-05,SERVER-RACK-05
+64,PP-SERVER-RACK-05-B,sr05-pp01,Rear-01,Rear Port,Ethernet1/47,Interface,sr05-leaf02,SMF,Connected,#7c3aed,DC1-ROW-D,DC1-ROW-D,SERVER-RACK-05,SERVER-RACK-05
+65,PP-SERVER-RACK-06-A,sr06-leaf01,Ethernet1/47,Interface,Front-01,Front Port,sr06-pp01,SMF,Connected,#7c3aed,DC1-ROW-D,DC1-ROW-D,SERVER-RACK-06,SERVER-RACK-06
+66,PP-SERVER-RACK-06-B,sr06-pp01,Rear-01,Rear Port,Ethernet1/47,Interface,sr06-leaf02,SMF,Connected,#7c3aed,DC1-ROW-D,DC1-ROW-D,SERVER-RACK-06,SERVER-RACK-06
+67,SRV-sr01-srv01-A,sr01-srv01,eth0,Interface,Ethernet1/1,Interface,sr01-leaf01,CAT6A,Connected,#2196f3,DC1-ROW-B,DC1-ROW-B,SERVER-RACK-01,SERVER-RACK-01
+68,SRV-sr01-srv01-B,sr01-srv01,eth1,Interface,Ethernet1/1,Interface,sr01-leaf02,CAT6A,Connected,#2196f3,DC1-ROW-B,DC1-ROW-B,SERVER-RACK-01,SERVER-RACK-01
+69,SRV-sr01-srv02-A,sr01-srv02,eth0,Interface,Ethernet1/2,Interface,sr01-leaf01,CAT6A,Connected,#2196f3,DC1-ROW-B,DC1-ROW-B,SERVER-RACK-01,SERVER-RACK-01
+70,SRV-sr01-srv02-B,sr01-srv02,eth1,Interface,Ethernet1/2,Interface,sr01-leaf02,CAT6A,Connected,#2196f3,DC1-ROW-B,DC1-ROW-B,SERVER-RACK-01,SERVER-RACK-01
+71,SRV-sr01-srv03-A,sr01-srv03,eth0,Interface,Ethernet1/3,Interface,sr01-leaf01,CAT6A,Connected,#2196f3,DC1-ROW-B,DC1-ROW-B,SERVER-RACK-01,SERVER-RACK-01
+72,SRV-sr01-srv03-B,sr01-srv03,eth1,Interface,Ethernet1/3,Interface,sr01-leaf02,CAT6A,Connected,#2196f3,DC1-ROW-B,DC1-ROW-B,SERVER-RACK-01,SERVER-RACK-01
+73,SRV-sr01-srv04-A,sr01-srv04,eth0,Interface,Ethernet1/4,Interface,sr01-leaf01,CAT6A,Connected,#2196f3,DC1-ROW-B,DC1-ROW-B,SERVER-RACK-01,SERVER-RACK-01
+74,SRV-sr01-srv04-B,sr01-srv04,eth1,Interface,Ethernet1/4,Interface,sr01-leaf02,CAT6A,Connected,#2196f3,DC1-ROW-B,DC1-ROW-B,SERVER-RACK-01,SERVER-RACK-01
+75,SRV-sr01-srv05-A,sr01-srv05,eth0,Interface,Ethernet1/5,Interface,sr01-leaf01,CAT6A,Connected,#2196f3,DC1-ROW-B,DC1-ROW-B,SERVER-RACK-01,SERVER-RACK-01
+76,SRV-sr01-srv05-B,sr01-srv05,eth1,Interface,Ethernet1/5,Interface,sr01-leaf02,CAT6A,Connected,#2196f3,DC1-ROW-B,DC1-ROW-B,SERVER-RACK-01,SERVER-RACK-01
+77,SRV-sr01-srv06-A,sr01-srv06,eth0,Interface,Ethernet1/6,Interface,sr01-leaf01,CAT6A,Connected,#2196f3,DC1-ROW-B,DC1-ROW-B,SERVER-RACK-01,SERVER-RACK-01
+78,SRV-sr01-srv06-B,sr01-srv06,eth1,Interface,Ethernet1/6,Interface,sr01-leaf02,CAT6A,Connected,#2196f3,DC1-ROW-B,DC1-ROW-B,SERVER-RACK-01,SERVER-RACK-01
+79,SRV-sr01-srv07-A,sr01-srv07,eth0,Interface,Ethernet1/7,Interface,sr01-leaf01,CAT6A,Connected,#2196f3,DC1-ROW-B,DC1-ROW-B,SERVER-RACK-01,SERVER-RACK-01
+80,SRV-sr01-srv07-B,sr01-srv07,eth1,Interface,Ethernet1/7,Interface,sr01-leaf02,CAT6A,Connected,#2196f3,DC1-ROW-B,DC1-ROW-B,SERVER-RACK-01,SERVER-RACK-01
+81,SRV-sr01-srv08-A,sr01-srv08,eth0,Interface,Ethernet1/8,Interface,sr01-leaf01,CAT6A,Connected,#2196f3,DC1-ROW-B,DC1-ROW-B,SERVER-RACK-01,SERVER-RACK-01
+82,SRV-sr01-srv08-B,sr01-srv08,eth1,Interface,Ethernet1/8,Interface,sr01-leaf02,CAT6A,Connected,#2196f3,DC1-ROW-B,DC1-ROW-B,SERVER-RACK-01,SERVER-RACK-01
+83,SRV-sr01-srv09-A,sr01-srv09,eth0,Interface,Ethernet1/9,Interface,sr01-leaf01,CAT6A,Connected,#2196f3,DC1-ROW-B,DC1-ROW-B,SERVER-RACK-01,SERVER-RACK-01
+84,SRV-sr01-srv09-B,sr01-srv09,eth1,Interface,Ethernet1/9,Interface,sr01-leaf02,CAT6A,Connected,#2196f3,DC1-ROW-B,DC1-ROW-B,SERVER-RACK-01,SERVER-RACK-01
+85,SRV-sr01-srv10-A,sr01-srv10,eth0,Interface,Ethernet1/10,Interface,sr01-leaf01,CAT6A,Connected,#2196f3,DC1-ROW-B,DC1-ROW-B,SERVER-RACK-01,SERVER-RACK-01
+86,SRV-sr01-srv10-B,sr01-srv10,eth1,Interface,Ethernet1/10,Interface,sr01-leaf02,CAT6A,Connected,#2196f3,DC1-ROW-B,DC1-ROW-B,SERVER-RACK-01,SERVER-RACK-01
+87,SRV-sr01-srv11-A,sr01-srv11,eth0,Interface,Ethernet1/11,Interface,sr01-leaf01,CAT6A,Connected,#2196f3,DC1-ROW-B,DC1-ROW-B,SERVER-RACK-01,SERVER-RACK-01
+88,SRV-sr01-srv11-B,sr01-srv11,eth1,Interface,Ethernet1/11,Interface,sr01-leaf02,CAT6A,Connected,#2196f3,DC1-ROW-B,DC1-ROW-B,SERVER-RACK-01,SERVER-RACK-01
+89,SRV-sr01-srv12-A,sr01-srv12,eth0,Interface,Ethernet1/12,Interface,sr01-leaf01,CAT6A,Connected,#2196f3,DC1-ROW-B,DC1-ROW-B,SERVER-RACK-01,SERVER-RACK-01
+90,SRV-sr01-srv12-B,sr01-srv12,eth1,Interface,Ethernet1/12,Interface,sr01-leaf02,CAT6A,Connected,#2196f3,DC1-ROW-B,DC1-ROW-B,SERVER-RACK-01,SERVER-RACK-01
+91,SRV-sr01-srv13-A,sr01-srv13,eth0,Interface,Ethernet1/13,Interface,sr01-leaf01,CAT6A,Connected,#2196f3,DC1-ROW-B,DC1-ROW-B,SERVER-RACK-01,SERVER-RACK-01
+92,SRV-sr01-srv13-B,sr01-srv13,eth1,Interface,Ethernet1/13,Interface,sr01-leaf02,CAT6A,Connected,#2196f3,DC1-ROW-B,DC1-ROW-B,SERVER-RACK-01,SERVER-RACK-01
+93,SRV-sr01-srv14-A,sr01-srv14,eth0,Interface,Ethernet1/14,Interface,sr01-leaf01,CAT6A,Connected,#2196f3,DC1-ROW-B,DC1-ROW-B,SERVER-RACK-01,SERVER-RACK-01
+94,SRV-sr01-srv14-B,sr01-srv14,eth1,Interface,Ethernet1/14,Interface,sr01-leaf02,CAT6A,Connected,#2196f3,DC1-ROW-B,DC1-ROW-B,SERVER-RACK-01,SERVER-RACK-01
+95,SRV-sr01-srv15-A,sr01-srv15,eth0,Interface,Ethernet1/15,Interface,sr01-leaf01,CAT6A,Connected,#2196f3,DC1-ROW-B,DC1-ROW-B,SERVER-RACK-01,SERVER-RACK-01
+96,SRV-sr01-srv15-B,sr01-srv15,eth1,Interface,Ethernet1/15,Interface,sr01-leaf02,CAT6A,Connected,#2196f3,DC1-ROW-B,DC1-ROW-B,SERVER-RACK-01,SERVER-RACK-01
+97,SRV-sr01-srv16-A,sr01-srv16,eth0,Interface,Ethernet1/16,Interface,sr01-leaf01,CAT6A,Connected,#2196f3,DC1-ROW-B,DC1-ROW-B,SERVER-RACK-01,SERVER-RACK-01
+98,SRV-sr01-srv16-B,sr01-srv16,eth1,Interface,Ethernet1/16,Interface,sr01-leaf02,CAT6A,Connected,#2196f3,DC1-ROW-B,DC1-ROW-B,SERVER-RACK-01,SERVER-RACK-01
+99,SRV-sr02-srv01-A,sr02-srv01,eth0,Interface,Ethernet1/1,Interface,sr02-leaf01,CAT6A,Connected,#2196f3,DC1-ROW-B,DC1-ROW-B,SERVER-RACK-02,SERVER-RACK-02
+100,SRV-sr02-srv01-B,sr02-srv01,eth1,Interface,Ethernet1/1,Interface,sr02-leaf02,CAT6A,Connected,#2196f3,DC1-ROW-B,DC1-ROW-B,SERVER-RACK-02,SERVER-RACK-02
+101,SRV-sr02-srv02-A,sr02-srv02,eth0,Interface,Ethernet1/2,Interface,sr02-leaf01,CAT6A,Connected,#2196f3,DC1-ROW-B,DC1-ROW-B,SERVER-RACK-02,SERVER-RACK-02
+102,SRV-sr02-srv02-B,sr02-srv02,eth1,Interface,Ethernet1/2,Interface,sr02-leaf02,CAT6A,Connected,#2196f3,DC1-ROW-B,DC1-ROW-B,SERVER-RACK-02,SERVER-RACK-02
+103,SRV-sr02-srv03-A,sr02-srv03,eth0,Interface,Ethernet1/3,Interface,sr02-leaf01,CAT6A,Connected,#2196f3,DC1-ROW-B,DC1-ROW-B,SERVER-RACK-02,SERVER-RACK-02
+104,SRV-sr02-srv03-B,sr02-srv03,eth1,Interface,Ethernet1/3,Interface,sr02-leaf02,CAT6A,Connected,#2196f3,DC1-ROW-B,DC1-ROW-B,SERVER-RACK-02,SERVER-RACK-02
+105,SRV-sr02-srv04-A,sr02-srv04,eth0,Interface,Ethernet1/4,Interface,sr02-leaf01,CAT6A,Connected,#2196f3,DC1-ROW-B,DC1-ROW-B,SERVER-RACK-02,SERVER-RACK-02
+106,SRV-sr02-srv04-B,sr02-srv04,eth1,Interface,Ethernet1/4,Interface,sr02-leaf02,CAT6A,Connected,#2196f3,DC1-ROW-B,DC1-ROW-B,SERVER-RACK-02,SERVER-RACK-02
+107,SRV-sr02-srv05-A,sr02-srv05,eth0,Interface,Ethernet1/5,Interface,sr02-leaf01,CAT6A,Connected,#2196f3,DC1-ROW-B,DC1-ROW-B,SERVER-RACK-02,SERVER-RACK-02
+108,SRV-sr02-srv05-B,sr02-srv05,eth1,Interface,Ethernet1/5,Interface,sr02-leaf02,CAT6A,Connected,#2196f3,DC1-ROW-B,DC1-ROW-B,SERVER-RACK-02,SERVER-RACK-02
+109,SRV-sr02-srv06-A,sr02-srv06,eth0,Interface,Ethernet1/6,Interface,sr02-leaf01,CAT6A,Connected,#2196f3,DC1-ROW-B,DC1-ROW-B,SERVER-RACK-02,SERVER-RACK-02
+110,SRV-sr02-srv06-B,sr02-srv06,eth1,Interface,Ethernet1/6,Interface,sr02-leaf02,CAT6A,Connected,#2196f3,DC1-ROW-B,DC1-ROW-B,SERVER-RACK-02,SERVER-RACK-02
+111,SRV-sr02-srv07-A,sr02-srv07,eth0,Interface,Ethernet1/7,Interface,sr02-leaf01,CAT6A,Connected,#2196f3,DC1-ROW-B,DC1-ROW-B,SERVER-RACK-02,SERVER-RACK-02
+112,SRV-sr02-srv07-B,sr02-srv07,eth1,Interface,Ethernet1/7,Interface,sr02-leaf02,CAT6A,Connected,#2196f3,DC1-ROW-B,DC1-ROW-B,SERVER-RACK-02,SERVER-RACK-02
+113,SRV-sr02-srv08-A,sr02-srv08,eth0,Interface,Ethernet1/8,Interface,sr02-leaf01,CAT6A,Connected,#2196f3,DC1-ROW-B,DC1-ROW-B,SERVER-RACK-02,SERVER-RACK-02
+114,SRV-sr02-srv08-B,sr02-srv08,eth1,Interface,Ethernet1/8,Interface,sr02-leaf02,CAT6A,Connected,#2196f3,DC1-ROW-B,DC1-ROW-B,SERVER-RACK-02,SERVER-RACK-02
+115,SRV-sr02-srv09-A,sr02-srv09,eth0,Interface,Ethernet1/9,Interface,sr02-leaf01,CAT6A,Connected,#2196f3,DC1-ROW-B,DC1-ROW-B,SERVER-RACK-02,SERVER-RACK-02
+116,SRV-sr02-srv09-B,sr02-srv09,eth1,Interface,Ethernet1/9,Interface,sr02-leaf02,CAT6A,Connected,#2196f3,DC1-ROW-B,DC1-ROW-B,SERVER-RACK-02,SERVER-RACK-02
+117,SRV-sr02-srv10-A,sr02-srv10,eth0,Interface,Ethernet1/10,Interface,sr02-leaf01,CAT6A,Connected,#2196f3,DC1-ROW-B,DC1-ROW-B,SERVER-RACK-02,SERVER-RACK-02
+118,SRV-sr02-srv10-B,sr02-srv10,eth1,Interface,Ethernet1/10,Interface,sr02-leaf02,CAT6A,Connected,#2196f3,DC1-ROW-B,DC1-ROW-B,SERVER-RACK-02,SERVER-RACK-02
+119,SRV-sr02-srv11-A,sr02-srv11,eth0,Interface,Ethernet1/11,Interface,sr02-leaf01,CAT6A,Connected,#2196f3,DC1-ROW-B,DC1-ROW-B,SERVER-RACK-02,SERVER-RACK-02
+120,SRV-sr02-srv11-B,sr02-srv11,eth1,Interface,Ethernet1/11,Interface,sr02-leaf02,CAT6A,Connected,#2196f3,DC1-ROW-B,DC1-ROW-B,SERVER-RACK-02,SERVER-RACK-02
+121,SRV-sr02-srv12-A,sr02-srv12,eth0,Interface,Ethernet1/12,Interface,sr02-leaf01,CAT6A,Connected,#2196f3,DC1-ROW-B,DC1-ROW-B,SERVER-RACK-02,SERVER-RACK-02
+122,SRV-sr02-srv12-B,sr02-srv12,eth1,Interface,Ethernet1/12,Interface,sr02-leaf02,CAT6A,Connected,#2196f3,DC1-ROW-B,DC1-ROW-B,SERVER-RACK-02,SERVER-RACK-02
+123,SRV-sr02-srv13-A,sr02-srv13,eth0,Interface,Ethernet1/13,Interface,sr02-leaf01,CAT6A,Connected,#2196f3,DC1-ROW-B,DC1-ROW-B,SERVER-RACK-02,SERVER-RACK-02
+124,SRV-sr02-srv13-B,sr02-srv13,eth1,Interface,Ethernet1/13,Interface,sr02-leaf02,CAT6A,Connected,#2196f3,DC1-ROW-B,DC1-ROW-B,SERVER-RACK-02,SERVER-RACK-02
+125,SRV-sr02-srv14-A,sr02-srv14,eth0,Interface,Ethernet1/14,Interface,sr02-leaf01,CAT6A,Connected,#2196f3,DC1-ROW-B,DC1-ROW-B,SERVER-RACK-02,SERVER-RACK-02
+126,SRV-sr02-srv14-B,sr02-srv14,eth1,Interface,Ethernet1/14,Interface,sr02-leaf02,CAT6A,Connected,#2196f3,DC1-ROW-B,DC1-ROW-B,SERVER-RACK-02,SERVER-RACK-02
+127,SRV-sr02-srv15-A,sr02-srv15,eth0,Interface,Ethernet1/15,Interface,sr02-leaf01,CAT6A,Connected,#2196f3,DC1-ROW-B,DC1-ROW-B,SERVER-RACK-02,SERVER-RACK-02
+128,SRV-sr02-srv15-B,sr02-srv15,eth1,Interface,Ethernet1/15,Interface,sr02-leaf02,CAT6A,Connected,#2196f3,DC1-ROW-B,DC1-ROW-B,SERVER-RACK-02,SERVER-RACK-02
+129,SRV-sr02-srv16-A,sr02-srv16,eth0,Interface,Ethernet1/16,Interface,sr02-leaf01,CAT6A,Connected,#2196f3,DC1-ROW-B,DC1-ROW-B,SERVER-RACK-02,SERVER-RACK-02
+130,SRV-sr02-srv16-B,sr02-srv16,eth1,Interface,Ethernet1/16,Interface,sr02-leaf02,CAT6A,Connected,#2196f3,DC1-ROW-B,DC1-ROW-B,SERVER-RACK-02,SERVER-RACK-02
+131,SRV-sr03-srv01-A,sr03-srv01,eth0,Interface,Ethernet1/1,Interface,sr03-leaf01,CAT6A,Connected,#2196f3,DC1-ROW-C,DC1-ROW-C,SERVER-RACK-03,SERVER-RACK-03
+132,SRV-sr03-srv01-B,sr03-srv01,eth1,Interface,Ethernet1/1,Interface,sr03-leaf02,CAT6A,Connected,#2196f3,DC1-ROW-C,DC1-ROW-C,SERVER-RACK-03,SERVER-RACK-03
+133,SRV-sr03-srv02-A,sr03-srv02,eth0,Interface,Ethernet1/2,Interface,sr03-leaf01,CAT6A,Connected,#2196f3,DC1-ROW-C,DC1-ROW-C,SERVER-RACK-03,SERVER-RACK-03
+134,SRV-sr03-srv02-B,sr03-srv02,eth1,Interface,Ethernet1/2,Interface,sr03-leaf02,CAT6A,Connected,#2196f3,DC1-ROW-C,DC1-ROW-C,SERVER-RACK-03,SERVER-RACK-03
+135,SRV-sr03-srv03-A,sr03-srv03,eth0,Interface,Ethernet1/3,Interface,sr03-leaf01,CAT6A,Connected,#2196f3,DC1-ROW-C,DC1-ROW-C,SERVER-RACK-03,SERVER-RACK-03
+136,SRV-sr03-srv03-B,sr03-srv03,eth1,Interface,Ethernet1/3,Interface,sr03-leaf02,CAT6A,Connected,#2196f3,DC1-ROW-C,DC1-ROW-C,SERVER-RACK-03,SERVER-RACK-03
+137,SRV-sr03-srv04-A,sr03-srv04,eth0,Interface,Ethernet1/4,Interface,sr03-leaf01,CAT6A,Connected,#2196f3,DC1-ROW-C,DC1-ROW-C,SERVER-RACK-03,SERVER-RACK-03
+138,SRV-sr03-srv04-B,sr03-srv04,eth1,Interface,Ethernet1/4,Interface,sr03-leaf02,CAT6A,Connected,#2196f3,DC1-ROW-C,DC1-ROW-C,SERVER-RACK-03,SERVER-RACK-03
+139,SRV-sr03-srv05-A,sr03-srv05,eth0,Interface,Ethernet1/5,Interface,sr03-leaf01,CAT6A,Connected,#2196f3,DC1-ROW-C,DC1-ROW-C,SERVER-RACK-03,SERVER-RACK-03
+140,SRV-sr03-srv05-B,sr03-srv05,eth1,Interface,Ethernet1/5,Interface,sr03-leaf02,CAT6A,Connected,#2196f3,DC1-ROW-C,DC1-ROW-C,SERVER-RACK-03,SERVER-RACK-03
+141,SRV-sr03-srv06-A,sr03-srv06,eth0,Interface,Ethernet1/6,Interface,sr03-leaf01,CAT6A,Connected,#2196f3,DC1-ROW-C,DC1-ROW-C,SERVER-RACK-03,SERVER-RACK-03
+142,SRV-sr03-srv06-B,sr03-srv06,eth1,Interface,Ethernet1/6,Interface,sr03-leaf02,CAT6A,Connected,#2196f3,DC1-ROW-C,DC1-ROW-C,SERVER-RACK-03,SERVER-RACK-03
+143,SRV-sr03-srv07-A,sr03-srv07,eth0,Interface,Ethernet1/7,Interface,sr03-leaf01,CAT6A,Connected,#2196f3,DC1-ROW-C,DC1-ROW-C,SERVER-RACK-03,SERVER-RACK-03
+144,SRV-sr03-srv07-B,sr03-srv07,eth1,Interface,Ethernet1/7,Interface,sr03-leaf02,CAT6A,Connected,#2196f3,DC1-ROW-C,DC1-ROW-C,SERVER-RACK-03,SERVER-RACK-03
+145,SRV-sr03-srv08-A,sr03-srv08,eth0,Interface,Ethernet1/8,Interface,sr03-leaf01,CAT6A,Connected,#2196f3,DC1-ROW-C,DC1-ROW-C,SERVER-RACK-03,SERVER-RACK-03
+146,SRV-sr03-srv08-B,sr03-srv08,eth1,Interface,Ethernet1/8,Interface,sr03-leaf02,CAT6A,Connected,#2196f3,DC1-ROW-C,DC1-ROW-C,SERVER-RACK-03,SERVER-RACK-03
+147,SRV-sr03-srv09-A,sr03-srv09,eth0,Interface,Ethernet1/9,Interface,sr03-leaf01,CAT6A,Connected,#2196f3,DC1-ROW-C,DC1-ROW-C,SERVER-RACK-03,SERVER-RACK-03
+148,SRV-sr03-srv09-B,sr03-srv09,eth1,Interface,Ethernet1/9,Interface,sr03-leaf02,CAT6A,Connected,#2196f3,DC1-ROW-C,DC1-ROW-C,SERVER-RACK-03,SERVER-RACK-03
+149,SRV-sr03-srv10-A,sr03-srv10,eth0,Interface,Ethernet1/10,Interface,sr03-leaf01,CAT6A,Connected,#2196f3,DC1-ROW-C,DC1-ROW-C,SERVER-RACK-03,SERVER-RACK-03
+150,SRV-sr03-srv10-B,sr03-srv10,eth1,Interface,Ethernet1/10,Interface,sr03-leaf02,CAT6A,Connected,#2196f3,DC1-ROW-C,DC1-ROW-C,SERVER-RACK-03,SERVER-RACK-03
+151,SRV-sr03-srv11-A,sr03-srv11,eth0,Interface,Ethernet1/11,Interface,sr03-leaf01,CAT6A,Connected,#2196f3,DC1-ROW-C,DC1-ROW-C,SERVER-RACK-03,SERVER-RACK-03
+152,SRV-sr03-srv11-B,sr03-srv11,eth1,Interface,Ethernet1/11,Interface,sr03-leaf02,CAT6A,Connected,#2196f3,DC1-ROW-C,DC1-ROW-C,SERVER-RACK-03,SERVER-RACK-03
+153,SRV-sr03-srv12-A,sr03-srv12,eth0,Interface,Ethernet1/12,Interface,sr03-leaf01,CAT6A,Connected,#2196f3,DC1-ROW-C,DC1-ROW-C,SERVER-RACK-03,SERVER-RACK-03
+154,SRV-sr03-srv12-B,sr03-srv12,eth1,Interface,Ethernet1/12,Interface,sr03-leaf02,CAT6A,Connected,#2196f3,DC1-ROW-C,DC1-ROW-C,SERVER-RACK-03,SERVER-RACK-03
+155,SRV-sr03-srv13-A,sr03-srv13,eth0,Interface,Ethernet1/13,Interface,sr03-leaf01,CAT6A,Connected,#2196f3,DC1-ROW-C,DC1-ROW-C,SERVER-RACK-03,SERVER-RACK-03
+156,SRV-sr03-srv13-B,sr03-srv13,eth1,Interface,Ethernet1/13,Interface,sr03-leaf02,CAT6A,Connected,#2196f3,DC1-ROW-C,DC1-ROW-C,SERVER-RACK-03,SERVER-RACK-03
+157,SRV-sr03-srv14-A,sr03-srv14,eth0,Interface,Ethernet1/14,Interface,sr03-leaf01,CAT6A,Connected,#2196f3,DC1-ROW-C,DC1-ROW-C,SERVER-RACK-03,SERVER-RACK-03
+158,SRV-sr03-srv14-B,sr03-srv14,eth1,Interface,Ethernet1/14,Interface,sr03-leaf02,CAT6A,Connected,#2196f3,DC1-ROW-C,DC1-ROW-C,SERVER-RACK-03,SERVER-RACK-03
+159,SRV-sr03-srv15-A,sr03-srv15,eth0,Interface,Ethernet1/15,Interface,sr03-leaf01,CAT6A,Connected,#2196f3,DC1-ROW-C,DC1-ROW-C,SERVER-RACK-03,SERVER-RACK-03
+160,SRV-sr03-srv15-B,sr03-srv15,eth1,Interface,Ethernet1/15,Interface,sr03-leaf02,CAT6A,Connected,#2196f3,DC1-ROW-C,DC1-ROW-C,SERVER-RACK-03,SERVER-RACK-03
+161,SRV-sr03-srv16-A,sr03-srv16,eth0,Interface,Ethernet1/16,Interface,sr03-leaf01,CAT6A,Connected,#2196f3,DC1-ROW-C,DC1-ROW-C,SERVER-RACK-03,SERVER-RACK-03
+162,SRV-sr03-srv16-B,sr03-srv16,eth1,Interface,Ethernet1/16,Interface,sr03-leaf02,CAT6A,Connected,#2196f3,DC1-ROW-C,DC1-ROW-C,SERVER-RACK-03,SERVER-RACK-03
+163,SRV-sr04-srv01-A,sr04-srv01,eth0,Interface,Ethernet1/1,Interface,sr04-leaf01,CAT6A,Connected,#2196f3,DC1-ROW-C,DC1-ROW-C,SERVER-RACK-04,SERVER-RACK-04
+164,SRV-sr04-srv01-B,sr04-srv01,eth1,Interface,Ethernet1/1,Interface,sr04-leaf02,CAT6A,Connected,#2196f3,DC1-ROW-C,DC1-ROW-C,SERVER-RACK-04,SERVER-RACK-04
+165,SRV-sr04-srv02-A,sr04-srv02,eth0,Interface,Ethernet1/2,Interface,sr04-leaf01,CAT6A,Connected,#2196f3,DC1-ROW-C,DC1-ROW-C,SERVER-RACK-04,SERVER-RACK-04
+166,SRV-sr04-srv02-B,sr04-srv02,eth1,Interface,Ethernet1/2,Interface,sr04-leaf02,CAT6A,Connected,#2196f3,DC1-ROW-C,DC1-ROW-C,SERVER-RACK-04,SERVER-RACK-04
+167,SRV-sr04-srv03-A,sr04-srv03,eth0,Interface,Ethernet1/3,Interface,sr04-leaf01,CAT6A,Connected,#2196f3,DC1-ROW-C,DC1-ROW-C,SERVER-RACK-04,SERVER-RACK-04
+168,SRV-sr04-srv03-B,sr04-srv03,eth1,Interface,Ethernet1/3,Interface,sr04-leaf02,CAT6A,Connected,#2196f3,DC1-ROW-C,DC1-ROW-C,SERVER-RACK-04,SERVER-RACK-04
+169,SRV-sr04-srv04-A,sr04-srv04,eth0,Interface,Ethernet1/4,Interface,sr04-leaf01,CAT6A,Connected,#2196f3,DC1-ROW-C,DC1-ROW-C,SERVER-RACK-04,SERVER-RACK-04
+170,SRV-sr04-srv04-B,sr04-srv04,eth1,Interface,Ethernet1/4,Interface,sr04-leaf02,CAT6A,Connected,#2196f3,DC1-ROW-C,DC1-ROW-C,SERVER-RACK-04,SERVER-RACK-04
+171,SRV-sr04-srv05-A,sr04-srv05,eth0,Interface,Ethernet1/5,Interface,sr04-leaf01,CAT6A,Connected,#2196f3,DC1-ROW-C,DC1-ROW-C,SERVER-RACK-04,SERVER-RACK-04
+172,SRV-sr04-srv05-B,sr04-srv05,eth1,Interface,Ethernet1/5,Interface,sr04-leaf02,CAT6A,Connected,#2196f3,DC1-ROW-C,DC1-ROW-C,SERVER-RACK-04,SERVER-RACK-04
+173,SRV-sr04-srv06-A,sr04-srv06,eth0,Interface,Ethernet1/6,Interface,sr04-leaf01,CAT6A,Connected,#2196f3,DC1-ROW-C,DC1-ROW-C,SERVER-RACK-04,SERVER-RACK-04
+174,SRV-sr04-srv06-B,sr04-srv06,eth1,Interface,Ethernet1/6,Interface,sr04-leaf02,CAT6A,Connected,#2196f3,DC1-ROW-C,DC1-ROW-C,SERVER-RACK-04,SERVER-RACK-04
+175,SRV-sr04-srv07-A,sr04-srv07,eth0,Interface,Ethernet1/7,Interface,sr04-leaf01,CAT6A,Connected,#2196f3,DC1-ROW-C,DC1-ROW-C,SERVER-RACK-04,SERVER-RACK-04
+176,SRV-sr04-srv07-B,sr04-srv07,eth1,Interface,Ethernet1/7,Interface,sr04-leaf02,CAT6A,Connected,#2196f3,DC1-ROW-C,DC1-ROW-C,SERVER-RACK-04,SERVER-RACK-04
+177,SRV-sr04-srv08-A,sr04-srv08,eth0,Interface,Ethernet1/8,Interface,sr04-leaf01,CAT6A,Connected,#2196f3,DC1-ROW-C,DC1-ROW-C,SERVER-RACK-04,SERVER-RACK-04
+178,SRV-sr04-srv08-B,sr04-srv08,eth1,Interface,Ethernet1/8,Interface,sr04-leaf02,CAT6A,Connected,#2196f3,DC1-ROW-C,DC1-ROW-C,SERVER-RACK-04,SERVER-RACK-04
+179,SRV-sr04-srv09-A,sr04-srv09,eth0,Interface,Ethernet1/9,Interface,sr04-leaf01,CAT6A,Connected,#2196f3,DC1-ROW-C,DC1-ROW-C,SERVER-RACK-04,SERVER-RACK-04
+180,SRV-sr04-srv09-B,sr04-srv09,eth1,Interface,Ethernet1/9,Interface,sr04-leaf02,CAT6A,Connected,#2196f3,DC1-ROW-C,DC1-ROW-C,SERVER-RACK-04,SERVER-RACK-04
+181,SRV-sr04-srv10-A,sr04-srv10,eth0,Interface,Ethernet1/10,Interface,sr04-leaf01,CAT6A,Connected,#2196f3,DC1-ROW-C,DC1-ROW-C,SERVER-RACK-04,SERVER-RACK-04
+182,SRV-sr04-srv10-B,sr04-srv10,eth1,Interface,Ethernet1/10,Interface,sr04-leaf02,CAT6A,Connected,#2196f3,DC1-ROW-C,DC1-ROW-C,SERVER-RACK-04,SERVER-RACK-04
+183,SRV-sr04-srv11-A,sr04-srv11,eth0,Interface,Ethernet1/11,Interface,sr04-leaf01,CAT6A,Connected,#2196f3,DC1-ROW-C,DC1-ROW-C,SERVER-RACK-04,SERVER-RACK-04
+184,SRV-sr04-srv11-B,sr04-srv11,eth1,Interface,Ethernet1/11,Interface,sr04-leaf02,CAT6A,Connected,#2196f3,DC1-ROW-C,DC1-ROW-C,SERVER-RACK-04,SERVER-RACK-04
+185,SRV-sr04-srv12-A,sr04-srv12,eth0,Interface,Ethernet1/12,Interface,sr04-leaf01,CAT6A,Connected,#2196f3,DC1-ROW-C,DC1-ROW-C,SERVER-RACK-04,SERVER-RACK-04
+186,SRV-sr04-srv12-B,sr04-srv12,eth1,Interface,Ethernet1/12,Interface,sr04-leaf02,CAT6A,Connected,#2196f3,DC1-ROW-C,DC1-ROW-C,SERVER-RACK-04,SERVER-RACK-04
+187,SRV-sr04-srv13-A,sr04-srv13,eth0,Interface,Ethernet1/13,Interface,sr04-leaf01,CAT6A,Connected,#2196f3,DC1-ROW-C,DC1-ROW-C,SERVER-RACK-04,SERVER-RACK-04
+188,SRV-sr04-srv13-B,sr04-srv13,eth1,Interface,Ethernet1/13,Interface,sr04-leaf02,CAT6A,Connected,#2196f3,DC1-ROW-C,DC1-ROW-C,SERVER-RACK-04,SERVER-RACK-04
+189,SRV-sr04-srv14-A,sr04-srv14,eth0,Interface,Ethernet1/14,Interface,sr04-leaf01,CAT6A,Connected,#2196f3,DC1-ROW-C,DC1-ROW-C,SERVER-RACK-04,SERVER-RACK-04
+190,SRV-sr04-srv14-B,sr04-srv14,eth1,Interface,Ethernet1/14,Interface,sr04-leaf02,CAT6A,Connected,#2196f3,DC1-ROW-C,DC1-ROW-C,SERVER-RACK-04,SERVER-RACK-04
+191,SRV-sr04-srv15-A,sr04-srv15,eth0,Interface,Ethernet1/15,Interface,sr04-leaf01,CAT6A,Connected,#2196f3,DC1-ROW-C,DC1-ROW-C,SERVER-RACK-04,SERVER-RACK-04
+192,SRV-sr04-srv15-B,sr04-srv15,eth1,Interface,Ethernet1/15,Interface,sr04-leaf02,CAT6A,Connected,#2196f3,DC1-ROW-C,DC1-ROW-C,SERVER-RACK-04,SERVER-RACK-04
+193,SRV-sr04-srv16-A,sr04-srv16,eth0,Interface,Ethernet1/16,Interface,sr04-leaf01,CAT6A,Connected,#2196f3,DC1-ROW-C,DC1-ROW-C,SERVER-RACK-04,SERVER-RACK-04
+194,SRV-sr04-srv16-B,sr04-srv16,eth1,Interface,Ethernet1/16,Interface,sr04-leaf02,CAT6A,Connected,#2196f3,DC1-ROW-C,DC1-ROW-C,SERVER-RACK-04,SERVER-RACK-04
+195,SRV-sr05-srv01-A,sr05-srv01,eth0,Interface,Ethernet1/1,Interface,sr05-leaf01,CAT6A,Connected,#2196f3,DC1-ROW-D,DC1-ROW-D,SERVER-RACK-05,SERVER-RACK-05
+196,SRV-sr05-srv01-B,sr05-srv01,eth1,Interface,Ethernet1/1,Interface,sr05-leaf02,CAT6A,Connected,#2196f3,DC1-ROW-D,DC1-ROW-D,SERVER-RACK-05,SERVER-RACK-05
+197,SRV-sr05-srv02-A,sr05-srv02,eth0,Interface,Ethernet1/2,Interface,sr05-leaf01,CAT6A,Connected,#2196f3,DC1-ROW-D,DC1-ROW-D,SERVER-RACK-05,SERVER-RACK-05
+198,SRV-sr05-srv02-B,sr05-srv02,eth1,Interface,Ethernet1/2,Interface,sr05-leaf02,CAT6A,Connected,#2196f3,DC1-ROW-D,DC1-ROW-D,SERVER-RACK-05,SERVER-RACK-05
+199,SRV-sr05-srv03-A,sr05-srv03,eth0,Interface,Ethernet1/3,Interface,sr05-leaf01,CAT6A,Connected,#2196f3,DC1-ROW-D,DC1-ROW-D,SERVER-RACK-05,SERVER-RACK-05
+200,SRV-sr05-srv03-B,sr05-srv03,eth1,Interface,Ethernet1/3,Interface,sr05-leaf02,CAT6A,Connected,#2196f3,DC1-ROW-D,DC1-ROW-D,SERVER-RACK-05,SERVER-RACK-05
+201,SRV-sr05-srv04-A,sr05-srv04,eth0,Interface,Ethernet1/4,Interface,sr05-leaf01,CAT6A,Connected,#2196f3,DC1-ROW-D,DC1-ROW-D,SERVER-RACK-05,SERVER-RACK-05
+202,SRV-sr05-srv04-B,sr05-srv04,eth1,Interface,Ethernet1/4,Interface,sr05-leaf02,CAT6A,Connected,#2196f3,DC1-ROW-D,DC1-ROW-D,SERVER-RACK-05,SERVER-RACK-05
+203,SRV-sr05-srv05-A,sr05-srv05,eth0,Interface,Ethernet1/5,Interface,sr05-leaf01,CAT6A,Connected,#2196f3,DC1-ROW-D,DC1-ROW-D,SERVER-RACK-05,SERVER-RACK-05
+204,SRV-sr05-srv05-B,sr05-srv05,eth1,Interface,Ethernet1/5,Interface,sr05-leaf02,CAT6A,Connected,#2196f3,DC1-ROW-D,DC1-ROW-D,SERVER-RACK-05,SERVER-RACK-05
+205,SRV-sr05-srv06-A,sr05-srv06,eth0,Interface,Ethernet1/6,Interface,sr05-leaf01,CAT6A,Connected,#2196f3,DC1-ROW-D,DC1-ROW-D,SERVER-RACK-05,SERVER-RACK-05
+206,SRV-sr05-srv06-B,sr05-srv06,eth1,Interface,Ethernet1/6,Interface,sr05-leaf02,CAT6A,Connected,#2196f3,DC1-ROW-D,DC1-ROW-D,SERVER-RACK-05,SERVER-RACK-05
+207,SRV-sr05-srv07-A,sr05-srv07,eth0,Interface,Ethernet1/7,Interface,sr05-leaf01,CAT6A,Connected,#2196f3,DC1-ROW-D,DC1-ROW-D,SERVER-RACK-05,SERVER-RACK-05
+208,SRV-sr05-srv07-B,sr05-srv07,eth1,Interface,Ethernet1/7,Interface,sr05-leaf02,CAT6A,Connected,#2196f3,DC1-ROW-D,DC1-ROW-D,SERVER-RACK-05,SERVER-RACK-05
+209,SRV-sr05-srv08-A,sr05-srv08,eth0,Interface,Ethernet1/8,Interface,sr05-leaf01,CAT6A,Connected,#2196f3,DC1-ROW-D,DC1-ROW-D,SERVER-RACK-05,SERVER-RACK-05
+210,SRV-sr05-srv08-B,sr05-srv08,eth1,Interface,Ethernet1/8,Interface,sr05-leaf02,CAT6A,Connected,#2196f3,DC1-ROW-D,DC1-ROW-D,SERVER-RACK-05,SERVER-RACK-05
+211,SRV-sr05-srv09-A,sr05-srv09,eth0,Interface,Ethernet1/9,Interface,sr05-leaf01,CAT6A,Connected,#2196f3,DC1-ROW-D,DC1-ROW-D,SERVER-RACK-05,SERVER-RACK-05
+212,SRV-sr05-srv09-B,sr05-srv09,eth1,Interface,Ethernet1/9,Interface,sr05-leaf02,CAT6A,Connected,#2196f3,DC1-ROW-D,DC1-ROW-D,SERVER-RACK-05,SERVER-RACK-05
+213,SRV-sr05-srv10-A,sr05-srv10,eth0,Interface,Ethernet1/10,Interface,sr05-leaf01,CAT6A,Connected,#2196f3,DC1-ROW-D,DC1-ROW-D,SERVER-RACK-05,SERVER-RACK-05
+214,SRV-sr05-srv10-B,sr05-srv10,eth1,Interface,Ethernet1/10,Interface,sr05-leaf02,CAT6A,Connected,#2196f3,DC1-ROW-D,DC1-ROW-D,SERVER-RACK-05,SERVER-RACK-05
+215,SRV-sr05-srv11-A,sr05-srv11,eth0,Interface,Ethernet1/11,Interface,sr05-leaf01,CAT6A,Connected,#2196f3,DC1-ROW-D,DC1-ROW-D,SERVER-RACK-05,SERVER-RACK-05
+216,SRV-sr05-srv11-B,sr05-srv11,eth1,Interface,Ethernet1/11,Interface,sr05-leaf02,CAT6A,Connected,#2196f3,DC1-ROW-D,DC1-ROW-D,SERVER-RACK-05,SERVER-RACK-05
+217,SRV-sr05-srv12-A,sr05-srv12,eth0,Interface,Ethernet1/12,Interface,sr05-leaf01,CAT6A,Connected,#2196f3,DC1-ROW-D,DC1-ROW-D,SERVER-RACK-05,SERVER-RACK-05
+218,SRV-sr05-srv12-B,sr05-srv12,eth1,Interface,Ethernet1/12,Interface,sr05-leaf02,CAT6A,Connected,#2196f3,DC1-ROW-D,DC1-ROW-D,SERVER-RACK-05,SERVER-RACK-05
+219,SRV-sr05-srv13-A,sr05-srv13,eth0,Interface,Ethernet1/13,Interface,sr05-leaf01,CAT6A,Connected,#2196f3,DC1-ROW-D,DC1-ROW-D,SERVER-RACK-05,SERVER-RACK-05
+220,SRV-sr05-srv13-B,sr05-srv13,eth1,Interface,Ethernet1/13,Interface,sr05-leaf02,CAT6A,Connected,#2196f3,DC1-ROW-D,DC1-ROW-D,SERVER-RACK-05,SERVER-RACK-05
+221,SRV-sr05-srv14-A,sr05-srv14,eth0,Interface,Ethernet1/14,Interface,sr05-leaf01,CAT6A,Connected,#2196f3,DC1-ROW-D,DC1-ROW-D,SERVER-RACK-05,SERVER-RACK-05
+222,SRV-sr05-srv14-B,sr05-srv14,eth1,Interface,Ethernet1/14,Interface,sr05-leaf02,CAT6A,Connected,#2196f3,DC1-ROW-D,DC1-ROW-D,SERVER-RACK-05,SERVER-RACK-05
+223,SRV-sr05-srv15-A,sr05-srv15,eth0,Interface,Ethernet1/15,Interface,sr05-leaf01,CAT6A,Connected,#2196f3,DC1-ROW-D,DC1-ROW-D,SERVER-RACK-05,SERVER-RACK-05
+224,SRV-sr05-srv15-B,sr05-srv15,eth1,Interface,Ethernet1/15,Interface,sr05-leaf02,CAT6A,Connected,#2196f3,DC1-ROW-D,DC1-ROW-D,SERVER-RACK-05,SERVER-RACK-05
+225,SRV-sr05-srv16-A,sr05-srv16,eth0,Interface,Ethernet1/16,Interface,sr05-leaf01,CAT6A,Connected,#2196f3,DC1-ROW-D,DC1-ROW-D,SERVER-RACK-05,SERVER-RACK-05
+226,SRV-sr05-srv16-B,sr05-srv16,eth1,Interface,Ethernet1/16,Interface,sr05-leaf02,CAT6A,Connected,#2196f3,DC1-ROW-D,DC1-ROW-D,SERVER-RACK-05,SERVER-RACK-05
+227,SRV-sr06-srv01-A,sr06-srv01,eth0,Interface,Ethernet1/1,Interface,sr06-leaf01,CAT6A,Connected,#2196f3,DC1-ROW-D,DC1-ROW-D,SERVER-RACK-06,SERVER-RACK-06
+228,SRV-sr06-srv01-B,sr06-srv01,eth1,Interface,Ethernet1/1,Interface,sr06-leaf02,CAT6A,Connected,#2196f3,DC1-ROW-D,DC1-ROW-D,SERVER-RACK-06,SERVER-RACK-06
+229,SRV-sr06-srv02-A,sr06-srv02,eth0,Interface,Ethernet1/2,Interface,sr06-leaf01,CAT6A,Connected,#2196f3,DC1-ROW-D,DC1-ROW-D,SERVER-RACK-06,SERVER-RACK-06
+230,SRV-sr06-srv02-B,sr06-srv02,eth1,Interface,Ethernet1/2,Interface,sr06-leaf02,CAT6A,Connected,#2196f3,DC1-ROW-D,DC1-ROW-D,SERVER-RACK-06,SERVER-RACK-06
+231,SRV-sr06-srv03-A,sr06-srv03,eth0,Interface,Ethernet1/3,Interface,sr06-leaf01,CAT6A,Connected,#2196f3,DC1-ROW-D,DC1-ROW-D,SERVER-RACK-06,SERVER-RACK-06
+232,SRV-sr06-srv03-B,sr06-srv03,eth1,Interface,Ethernet1/3,Interface,sr06-leaf02,CAT6A,Connected,#2196f3,DC1-ROW-D,DC1-ROW-D,SERVER-RACK-06,SERVER-RACK-06
+233,SRV-sr06-srv04-A,sr06-srv04,eth0,Interface,Ethernet1/4,Interface,sr06-leaf01,CAT6A,Connected,#2196f3,DC1-ROW-D,DC1-ROW-D,SERVER-RACK-06,SERVER-RACK-06
+234,SRV-sr06-srv04-B,sr06-srv04,eth1,Interface,Ethernet1/4,Interface,sr06-leaf02,CAT6A,Connected,#2196f3,DC1-ROW-D,DC1-ROW-D,SERVER-RACK-06,SERVER-RACK-06
+235,SRV-sr06-srv05-A,sr06-srv05,eth0,Interface,Ethernet1/5,Interface,sr06-leaf01,CAT6A,Connected,#2196f3,DC1-ROW-D,DC1-ROW-D,SERVER-RACK-06,SERVER-RACK-06
+236,SRV-sr06-srv05-B,sr06-srv05,eth1,Interface,Ethernet1/5,Interface,sr06-leaf02,CAT6A,Connected,#2196f3,DC1-ROW-D,DC1-ROW-D,SERVER-RACK-06,SERVER-RACK-06
+237,SRV-sr06-srv06-A,sr06-srv06,eth0,Interface,Ethernet1/6,Interface,sr06-leaf01,CAT6A,Connected,#2196f3,DC1-ROW-D,DC1-ROW-D,SERVER-RACK-06,SERVER-RACK-06
+238,SRV-sr06-srv06-B,sr06-srv06,eth1,Interface,Ethernet1/6,Interface,sr06-leaf02,CAT6A,Connected,#2196f3,DC1-ROW-D,DC1-ROW-D,SERVER-RACK-06,SERVER-RACK-06
+239,SRV-sr06-srv07-A,sr06-srv07,eth0,Interface,Ethernet1/7,Interface,sr06-leaf01,CAT6A,Connected,#2196f3,DC1-ROW-D,DC1-ROW-D,SERVER-RACK-06,SERVER-RACK-06
+240,SRV-sr06-srv07-B,sr06-srv07,eth1,Interface,Ethernet1/7,Interface,sr06-leaf02,CAT6A,Connected,#2196f3,DC1-ROW-D,DC1-ROW-D,SERVER-RACK-06,SERVER-RACK-06
+241,SRV-sr06-srv08-A,sr06-srv08,eth0,Interface,Ethernet1/8,Interface,sr06-leaf01,CAT6A,Connected,#2196f3,DC1-ROW-D,DC1-ROW-D,SERVER-RACK-06,SERVER-RACK-06
+242,SRV-sr06-srv08-B,sr06-srv08,eth1,Interface,Ethernet1/8,Interface,sr06-leaf02,CAT6A,Connected,#2196f3,DC1-ROW-D,DC1-ROW-D,SERVER-RACK-06,SERVER-RACK-06
+243,SRV-sr06-srv09-A,sr06-srv09,eth0,Interface,Ethernet1/9,Interface,sr06-leaf01,CAT6A,Connected,#2196f3,DC1-ROW-D,DC1-ROW-D,SERVER-RACK-06,SERVER-RACK-06
+244,SRV-sr06-srv09-B,sr06-srv09,eth1,Interface,Ethernet1/9,Interface,sr06-leaf02,CAT6A,Connected,#2196f3,DC1-ROW-D,DC1-ROW-D,SERVER-RACK-06,SERVER-RACK-06
+245,SRV-sr06-srv10-A,sr06-srv10,eth0,Interface,Ethernet1/10,Interface,sr06-leaf01,CAT6A,Connected,#2196f3,DC1-ROW-D,DC1-ROW-D,SERVER-RACK-06,SERVER-RACK-06
+246,SRV-sr06-srv10-B,sr06-srv10,eth1,Interface,Ethernet1/10,Interface,sr06-leaf02,CAT6A,Connected,#2196f3,DC1-ROW-D,DC1-ROW-D,SERVER-RACK-06,SERVER-RACK-06
+247,SRV-sr06-srv11-A,sr06-srv11,eth0,Interface,Ethernet1/11,Interface,sr06-leaf01,CAT6A,Connected,#2196f3,DC1-ROW-D,DC1-ROW-D,SERVER-RACK-06,SERVER-RACK-06
+248,SRV-sr06-srv11-B,sr06-srv11,eth1,Interface,Ethernet1/11,Interface,sr06-leaf02,CAT6A,Connected,#2196f3,DC1-ROW-D,DC1-ROW-D,SERVER-RACK-06,SERVER-RACK-06
+249,SRV-sr06-srv12-A,sr06-srv12,eth0,Interface,Ethernet1/12,Interface,sr06-leaf01,CAT6A,Connected,#2196f3,DC1-ROW-D,DC1-ROW-D,SERVER-RACK-06,SERVER-RACK-06
+250,SRV-sr06-srv12-B,sr06-srv12,eth1,Interface,Ethernet1/12,Interface,sr06-leaf02,CAT6A,Connected,#2196f3,DC1-ROW-D,DC1-ROW-D,SERVER-RACK-06,SERVER-RACK-06
+251,SRV-sr06-srv13-A,sr06-srv13,eth0,Interface,Ethernet1/13,Interface,sr06-leaf01,CAT6A,Connected,#2196f3,DC1-ROW-D,DC1-ROW-D,SERVER-RACK-06,SERVER-RACK-06
+252,SRV-sr06-srv13-B,sr06-srv13,eth1,Interface,Ethernet1/13,Interface,sr06-leaf02,CAT6A,Connected,#2196f3,DC1-ROW-D,DC1-ROW-D,SERVER-RACK-06,SERVER-RACK-06
+253,SRV-sr06-srv14-A,sr06-srv14,eth0,Interface,Ethernet1/14,Interface,sr06-leaf01,CAT6A,Connected,#2196f3,DC1-ROW-D,DC1-ROW-D,SERVER-RACK-06,SERVER-RACK-06
+254,SRV-sr06-srv14-B,sr06-srv14,eth1,Interface,Ethernet1/14,Interface,sr06-leaf02,CAT6A,Connected,#2196f3,DC1-ROW-D,DC1-ROW-D,SERVER-RACK-06,SERVER-RACK-06
+255,SRV-sr06-srv15-A,sr06-srv15,eth0,Interface,Ethernet1/15,Interface,sr06-leaf01,CAT6A,Connected,#2196f3,DC1-ROW-D,DC1-ROW-D,SERVER-RACK-06,SERVER-RACK-06
+256,SRV-sr06-srv15-B,sr06-srv15,eth1,Interface,Ethernet1/15,Interface,sr06-leaf02,CAT6A,Connected,#2196f3,DC1-ROW-D,DC1-ROW-D,SERVER-RACK-06,SERVER-RACK-06
+257,SRV-sr06-srv16-A,sr06-srv16,eth0,Interface,Ethernet1/16,Interface,sr06-leaf01,CAT6A,Connected,#2196f3,DC1-ROW-D,DC1-ROW-D,SERVER-RACK-06,SERVER-RACK-06
+258,SRV-sr06-srv16-B,sr06-srv16,eth1,Interface,Ethernet1/16,Interface,sr06-leaf02,CAT6A,Connected,#2196f3,DC1-ROW-D,DC1-ROW-D,SERVER-RACK-06,SERVER-RACK-06
+259,LEAF-PEER-SERVER-RACK-01-01,sr01-leaf01,Ethernet1/55,Interface,Ethernet1/55,Interface,sr01-leaf02,DAC-25G,Connected,#4caf50,DC1-ROW-B,DC1-ROW-B,SERVER-RACK-01,SERVER-RACK-01
+260,LEAF-PEER-SERVER-RACK-01-02,sr01-leaf01,Ethernet1/56,Interface,Ethernet1/56,Interface,sr01-leaf02,DAC-25G,Connected,#4caf50,DC1-ROW-B,DC1-ROW-B,SERVER-RACK-01,SERVER-RACK-01
+261,LEAF-PEER-SERVER-RACK-02-01,sr02-leaf01,Ethernet1/55,Interface,Ethernet1/55,Interface,sr02-leaf02,DAC-25G,Connected,#4caf50,DC1-ROW-B,DC1-ROW-B,SERVER-RACK-02,SERVER-RACK-02
+262,LEAF-PEER-SERVER-RACK-02-02,sr02-leaf01,Ethernet1/56,Interface,Ethernet1/56,Interface,sr02-leaf02,DAC-25G,Connected,#4caf50,DC1-ROW-B,DC1-ROW-B,SERVER-RACK-02,SERVER-RACK-02
+263,LEAF-PEER-SERVER-RACK-03-01,sr03-leaf01,Ethernet1/55,Interface,Ethernet1/55,Interface,sr03-leaf02,DAC-25G,Connected,#4caf50,DC1-ROW-C,DC1-ROW-C,SERVER-RACK-03,SERVER-RACK-03
+264,LEAF-PEER-SERVER-RACK-03-02,sr03-leaf01,Ethernet1/56,Interface,Ethernet1/56,Interface,sr03-leaf02,DAC-25G,Connected,#4caf50,DC1-ROW-C,DC1-ROW-C,SERVER-RACK-03,SERVER-RACK-03
+265,LEAF-PEER-SERVER-RACK-04-01,sr04-leaf01,Ethernet1/55,Interface,Ethernet1/55,Interface,sr04-leaf02,DAC-25G,Connected,#4caf50,DC1-ROW-C,DC1-ROW-C,SERVER-RACK-04,SERVER-RACK-04
+266,LEAF-PEER-SERVER-RACK-04-02,sr04-leaf01,Ethernet1/56,Interface,Ethernet1/56,Interface,sr04-leaf02,DAC-25G,Connected,#4caf50,DC1-ROW-C,DC1-ROW-C,SERVER-RACK-04,SERVER-RACK-04
+267,LEAF-PEER-SERVER-RACK-05-01,sr05-leaf01,Ethernet1/55,Interface,Ethernet1/55,Interface,sr05-leaf02,DAC-25G,Connected,#4caf50,DC1-ROW-D,DC1-ROW-D,SERVER-RACK-05,SERVER-RACK-05
+268,LEAF-PEER-SERVER-RACK-05-02,sr05-leaf01,Ethernet1/56,Interface,Ethernet1/56,Interface,sr05-leaf02,DAC-25G,Connected,#4caf50,DC1-ROW-D,DC1-ROW-D,SERVER-RACK-05,SERVER-RACK-05
+269,LEAF-PEER-SERVER-RACK-06-01,sr06-leaf01,Ethernet1/55,Interface,Ethernet1/55,Interface,sr06-leaf02,DAC-25G,Connected,#4caf50,DC1-ROW-D,DC1-ROW-D,SERVER-RACK-06,SERVER-RACK-06
+270,LEAF-PEER-SERVER-RACK-06-02,sr06-leaf01,Ethernet1/56,Interface,Ethernet1/56,Interface,sr06-leaf02,DAC-25G,Connected,#4caf50,DC1-ROW-D,DC1-ROW-D,SERVER-RACK-06,SERVER-RACK-06
+271,POWER-FEED-SERVER-RACK-01,core-ups01,Feed-1,Power Feed,Input-1,Power Feed,sr01-pdu01,PowerFeed,Connected,#c2410c,DC1-ROW-A,DC1-ROW-B,CORE-RACK-01,SERVER-RACK-01
+272,POWER-sr01-leaf01,sr01-leaf01,PSU-A,Power Port,Outlet-01,Power Outlet,sr01-pdu01,Power,Connected,#dc2626,DC1-ROW-B,DC1-ROW-B,SERVER-RACK-01,SERVER-RACK-01
+273,POWER-sr01-leaf02,sr01-leaf02,PSU-A,Power Port,Outlet-02,Power Outlet,sr01-pdu01,Power,Connected,#dc2626,DC1-ROW-B,DC1-ROW-B,SERVER-RACK-01,SERVER-RACK-01
+274,POWER-sr01-srv01,sr01-srv01,PSU1,Power Port,Outlet-3,Power Outlet,sr01-pdu01,Power,Connected,#ea580c,DC1-ROW-B,DC1-ROW-B,SERVER-RACK-01,SERVER-RACK-01
+275,POWER-sr01-srv02,sr01-srv02,PSU1,Power Port,Outlet-4,Power Outlet,sr01-pdu01,Power,Connected,#ea580c,DC1-ROW-B,DC1-ROW-B,SERVER-RACK-01,SERVER-RACK-01
+276,POWER-sr01-srv03,sr01-srv03,PSU1,Power Port,Outlet-5,Power Outlet,sr01-pdu01,Power,Connected,#ea580c,DC1-ROW-B,DC1-ROW-B,SERVER-RACK-01,SERVER-RACK-01
+277,POWER-sr01-srv04,sr01-srv04,PSU1,Power Port,Outlet-6,Power Outlet,sr01-pdu01,Power,Connected,#ea580c,DC1-ROW-B,DC1-ROW-B,SERVER-RACK-01,SERVER-RACK-01
+278,POWER-sr01-srv05,sr01-srv05,PSU1,Power Port,Outlet-7,Power Outlet,sr01-pdu01,Power,Connected,#ea580c,DC1-ROW-B,DC1-ROW-B,SERVER-RACK-01,SERVER-RACK-01
+279,POWER-sr01-srv06,sr01-srv06,PSU1,Power Port,Outlet-8,Power Outlet,sr01-pdu01,Power,Connected,#ea580c,DC1-ROW-B,DC1-ROW-B,SERVER-RACK-01,SERVER-RACK-01
+280,POWER-FEED-SERVER-RACK-02,core-ups01,Feed-2,Power Feed,Input-2,Power Feed,sr02-pdu01,PowerFeed,Connected,#c2410c,DC1-ROW-A,DC1-ROW-B,CORE-RACK-01,SERVER-RACK-02
+281,POWER-sr02-leaf01,sr02-leaf01,PSU-A,Power Port,Outlet-01,Power Outlet,sr02-pdu01,Power,Connected,#dc2626,DC1-ROW-B,DC1-ROW-B,SERVER-RACK-02,SERVER-RACK-02
+282,POWER-sr02-leaf02,sr02-leaf02,PSU-A,Power Port,Outlet-02,Power Outlet,sr02-pdu01,Power,Connected,#dc2626,DC1-ROW-B,DC1-ROW-B,SERVER-RACK-02,SERVER-RACK-02
+283,POWER-sr02-srv01,sr02-srv01,PSU1,Power Port,Outlet-3,Power Outlet,sr02-pdu01,Power,Connected,#ea580c,DC1-ROW-B,DC1-ROW-B,SERVER-RACK-02,SERVER-RACK-02
+284,POWER-sr02-srv02,sr02-srv02,PSU1,Power Port,Outlet-4,Power Outlet,sr02-pdu01,Power,Connected,#ea580c,DC1-ROW-B,DC1-ROW-B,SERVER-RACK-02,SERVER-RACK-02
+285,POWER-sr02-srv03,sr02-srv03,PSU1,Power Port,Outlet-5,Power Outlet,sr02-pdu01,Power,Connected,#ea580c,DC1-ROW-B,DC1-ROW-B,SERVER-RACK-02,SERVER-RACK-02
+286,POWER-sr02-srv04,sr02-srv04,PSU1,Power Port,Outlet-6,Power Outlet,sr02-pdu01,Power,Connected,#ea580c,DC1-ROW-B,DC1-ROW-B,SERVER-RACK-02,SERVER-RACK-02
+287,POWER-sr02-srv05,sr02-srv05,PSU1,Power Port,Outlet-7,Power Outlet,sr02-pdu01,Power,Connected,#ea580c,DC1-ROW-B,DC1-ROW-B,SERVER-RACK-02,SERVER-RACK-02
+288,POWER-sr02-srv06,sr02-srv06,PSU1,Power Port,Outlet-8,Power Outlet,sr02-pdu01,Power,Connected,#ea580c,DC1-ROW-B,DC1-ROW-B,SERVER-RACK-02,SERVER-RACK-02
+289,POWER-FEED-SERVER-RACK-03,core-ups01,Feed-3,Power Feed,Input-3,Power Feed,sr03-pdu01,PowerFeed,Connected,#c2410c,DC1-ROW-A,DC1-ROW-C,CORE-RACK-01,SERVER-RACK-03
+290,POWER-sr03-leaf01,sr03-leaf01,PSU-A,Power Port,Outlet-01,Power Outlet,sr03-pdu01,Power,Connected,#dc2626,DC1-ROW-C,DC1-ROW-C,SERVER-RACK-03,SERVER-RACK-03
+291,POWER-sr03-leaf02,sr03-leaf02,PSU-A,Power Port,Outlet-02,Power Outlet,sr03-pdu01,Power,Connected,#dc2626,DC1-ROW-C,DC1-ROW-C,SERVER-RACK-03,SERVER-RACK-03
+292,POWER-sr03-srv01,sr03-srv01,PSU1,Power Port,Outlet-3,Power Outlet,sr03-pdu01,Power,Connected,#ea580c,DC1-ROW-C,DC1-ROW-C,SERVER-RACK-03,SERVER-RACK-03
+293,POWER-sr03-srv02,sr03-srv02,PSU1,Power Port,Outlet-4,Power Outlet,sr03-pdu01,Power,Connected,#ea580c,DC1-ROW-C,DC1-ROW-C,SERVER-RACK-03,SERVER-RACK-03
+294,POWER-sr03-srv03,sr03-srv03,PSU1,Power Port,Outlet-5,Power Outlet,sr03-pdu01,Power,Connected,#ea580c,DC1-ROW-C,DC1-ROW-C,SERVER-RACK-03,SERVER-RACK-03
+295,POWER-sr03-srv04,sr03-srv04,PSU1,Power Port,Outlet-6,Power Outlet,sr03-pdu01,Power,Connected,#ea580c,DC1-ROW-C,DC1-ROW-C,SERVER-RACK-03,SERVER-RACK-03
+296,POWER-sr03-srv05,sr03-srv05,PSU1,Power Port,Outlet-7,Power Outlet,sr03-pdu01,Power,Connected,#ea580c,DC1-ROW-C,DC1-ROW-C,SERVER-RACK-03,SERVER-RACK-03
+297,POWER-sr03-srv06,sr03-srv06,PSU1,Power Port,Outlet-8,Power Outlet,sr03-pdu01,Power,Connected,#ea580c,DC1-ROW-C,DC1-ROW-C,SERVER-RACK-03,SERVER-RACK-03
+298,POWER-FEED-SERVER-RACK-04,core-ups01,Feed-4,Power Feed,Input-4,Power Feed,sr04-pdu01,PowerFeed,Connected,#c2410c,DC1-ROW-A,DC1-ROW-C,CORE-RACK-01,SERVER-RACK-04
+299,POWER-sr04-leaf01,sr04-leaf01,PSU-A,Power Port,Outlet-01,Power Outlet,sr04-pdu01,Power,Connected,#dc2626,DC1-ROW-C,DC1-ROW-C,SERVER-RACK-04,SERVER-RACK-04
+300,POWER-sr04-leaf02,sr04-leaf02,PSU-A,Power Port,Outlet-02,Power Outlet,sr04-pdu01,Power,Connected,#dc2626,DC1-ROW-C,DC1-ROW-C,SERVER-RACK-04,SERVER-RACK-04
+301,POWER-sr04-srv01,sr04-srv01,PSU1,Power Port,Outlet-3,Power Outlet,sr04-pdu01,Power,Connected,#ea580c,DC1-ROW-C,DC1-ROW-C,SERVER-RACK-04,SERVER-RACK-04
+302,POWER-sr04-srv02,sr04-srv02,PSU1,Power Port,Outlet-4,Power Outlet,sr04-pdu01,Power,Connected,#ea580c,DC1-ROW-C,DC1-ROW-C,SERVER-RACK-04,SERVER-RACK-04
+303,POWER-sr04-srv03,sr04-srv03,PSU1,Power Port,Outlet-5,Power Outlet,sr04-pdu01,Power,Connected,#ea580c,DC1-ROW-C,DC1-ROW-C,SERVER-RACK-04,SERVER-RACK-04
+304,POWER-sr04-srv04,sr04-srv04,PSU1,Power Port,Outlet-6,Power Outlet,sr04-pdu01,Power,Connected,#ea580c,DC1-ROW-C,DC1-ROW-C,SERVER-RACK-04,SERVER-RACK-04
+305,POWER-sr04-srv05,sr04-srv05,PSU1,Power Port,Outlet-7,Power Outlet,sr04-pdu01,Power,Connected,#ea580c,DC1-ROW-C,DC1-ROW-C,SERVER-RACK-04,SERVER-RACK-04
+306,POWER-sr04-srv06,sr04-srv06,PSU1,Power Port,Outlet-8,Power Outlet,sr04-pdu01,Power,Connected,#ea580c,DC1-ROW-C,DC1-ROW-C,SERVER-RACK-04,SERVER-RACK-04
+307,POWER-FEED-SERVER-RACK-05,core-ups01,Feed-5,Power Feed,Input-5,Power Feed,sr05-pdu01,PowerFeed,Connected,#c2410c,DC1-ROW-A,DC1-ROW-D,CORE-RACK-01,SERVER-RACK-05
+308,POWER-sr05-leaf01,sr05-leaf01,PSU-A,Power Port,Outlet-01,Power Outlet,sr05-pdu01,Power,Connected,#dc2626,DC1-ROW-D,DC1-ROW-D,SERVER-RACK-05,SERVER-RACK-05
+309,POWER-sr05-leaf02,sr05-leaf02,PSU-A,Power Port,Outlet-02,Power Outlet,sr05-pdu01,Power,Connected,#dc2626,DC1-ROW-D,DC1-ROW-D,SERVER-RACK-05,SERVER-RACK-05
+310,POWER-sr05-srv01,sr05-srv01,PSU1,Power Port,Outlet-3,Power Outlet,sr05-pdu01,Power,Connected,#ea580c,DC1-ROW-D,DC1-ROW-D,SERVER-RACK-05,SERVER-RACK-05
+311,POWER-sr05-srv02,sr05-srv02,PSU1,Power Port,Outlet-4,Power Outlet,sr05-pdu01,Power,Connected,#ea580c,DC1-ROW-D,DC1-ROW-D,SERVER-RACK-05,SERVER-RACK-05
+312,POWER-sr05-srv03,sr05-srv03,PSU1,Power Port,Outlet-5,Power Outlet,sr05-pdu01,Power,Connected,#ea580c,DC1-ROW-D,DC1-ROW-D,SERVER-RACK-05,SERVER-RACK-05
+313,POWER-sr05-srv04,sr05-srv04,PSU1,Power Port,Outlet-6,Power Outlet,sr05-pdu01,Power,Connected,#ea580c,DC1-ROW-D,DC1-ROW-D,SERVER-RACK-05,SERVER-RACK-05
+314,POWER-sr05-srv05,sr05-srv05,PSU1,Power Port,Outlet-7,Power Outlet,sr05-pdu01,Power,Connected,#ea580c,DC1-ROW-D,DC1-ROW-D,SERVER-RACK-05,SERVER-RACK-05
+315,POWER-sr05-srv06,sr05-srv06,PSU1,Power Port,Outlet-8,Power Outlet,sr05-pdu01,Power,Connected,#ea580c,DC1-ROW-D,DC1-ROW-D,SERVER-RACK-05,SERVER-RACK-05
+316,POWER-FEED-SERVER-RACK-06,core-ups01,Feed-6,Power Feed,Input-6,Power Feed,sr06-pdu01,PowerFeed,Connected,#c2410c,DC1-ROW-A,DC1-ROW-D,CORE-RACK-01,SERVER-RACK-06
+317,POWER-sr06-leaf01,sr06-leaf01,PSU-A,Power Port,Outlet-01,Power Outlet,sr06-pdu01,Power,Connected,#dc2626,DC1-ROW-D,DC1-ROW-D,SERVER-RACK-06,SERVER-RACK-06
+318,POWER-sr06-leaf02,sr06-leaf02,PSU-A,Power Port,Outlet-02,Power Outlet,sr06-pdu01,Power,Connected,#dc2626,DC1-ROW-D,DC1-ROW-D,SERVER-RACK-06,SERVER-RACK-06
+319,POWER-sr06-srv01,sr06-srv01,PSU1,Power Port,Outlet-3,Power Outlet,sr06-pdu01,Power,Connected,#ea580c,DC1-ROW-D,DC1-ROW-D,SERVER-RACK-06,SERVER-RACK-06
+320,POWER-sr06-srv02,sr06-srv02,PSU1,Power Port,Outlet-4,Power Outlet,sr06-pdu01,Power,Connected,#ea580c,DC1-ROW-D,DC1-ROW-D,SERVER-RACK-06,SERVER-RACK-06
+321,POWER-sr06-srv03,sr06-srv03,PSU1,Power Port,Outlet-5,Power Outlet,sr06-pdu01,Power,Connected,#ea580c,DC1-ROW-D,DC1-ROW-D,SERVER-RACK-06,SERVER-RACK-06
+322,POWER-sr06-srv04,sr06-srv04,PSU1,Power Port,Outlet-6,Power Outlet,sr06-pdu01,Power,Connected,#ea580c,DC1-ROW-D,DC1-ROW-D,SERVER-RACK-06,SERVER-RACK-06
+323,POWER-sr06-srv05,sr06-srv05,PSU1,Power Port,Outlet-7,Power Outlet,sr06-pdu01,Power,Connected,#ea580c,DC1-ROW-D,DC1-ROW-D,SERVER-RACK-06,SERVER-RACK-06
+324,POWER-sr06-srv06,sr06-srv06,PSU1,Power Port,Outlet-8,Power Outlet,sr06-pdu01,Power,Connected,#ea580c,DC1-ROW-D,DC1-ROW-D,SERVER-RACK-06,SERVER-RACK-06
