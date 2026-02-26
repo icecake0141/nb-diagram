@@ -768,7 +768,11 @@ def build_drawio_xml(elements: list[dict[str, Any]], diagram_name: str) -> str:
         center_x = start_x + rack_idx * (rack_width + rack_gap) + rack_width / 2
         same_bucket = nodes_by_rack_role.get((rack_name, role), [])
         bucket_index = next(
-            (i for i, n in enumerate(same_bucket) if str(n.get("data", {}).get("id", "")) == source_id),
+            (
+                i
+                for i, n in enumerate(same_bucket)
+                if str(n.get("data", {}).get("id", "")) == source_id
+            ),
             0,
         )
         bucket_count = max(1, len(same_bucket))

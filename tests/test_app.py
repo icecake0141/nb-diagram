@@ -210,7 +210,10 @@ class AppLogicTests(unittest.TestCase):
         self.assertIn("link&lt;1&gt;", xml)
         self.assertIn('source="n1"', xml)
         self.assertIn('target="n2"', xml)
-        self.assertNotIn('value="R1" style="rounded=1;whiteSpace=wrap;html=1;fontColor=#ffffff;', xml)
+        self.assertNotIn(
+            'value="R1" style="rounded=1;whiteSpace=wrap;html=1;fontColor=#ffffff;',
+            xml,
+        )
         self.assertIn("exitPerimeter=1;entryPerimeter=1;", xml)
         self.assertIn("exitX=", xml)
         self.assertIn("entryX=", xml)
