@@ -109,21 +109,36 @@
       </details>
 
       <div id="cy"></div>
+      <section class="role-stats" id="roleStats"></section>
       <section class="component-filter">
+        <label for="rackSelect">ラック:</label>
+        <select id="rackSelect">
+          <option value="all">全ラック</option>
+          {% for rack in rack_options or [] %}
+            <option value="{{ rack }}">{{ rack }}</option>
+          {% endfor %}
+        </select>
         <label for="componentSelect">表示コンポーネント:</label>
         <select id="componentSelect"></select>
+        <label><input id="showServers" type="checkbox"> サーバ表示</label>
       </section>
+      <details class="rack-folders">
+        <summary>ラックごとの折りたたみ（サーバ表示）</summary>
+        <div id="rackFolders"></div>
+      </details>
 
       <details>
         <summary>接続一覧</summary>
         <table>
-          <thead><tr><th>A Device</th><th>A Interface</th><th>A終端タイプ</th><th>B Device</th><th>B Interface</th><th>B終端タイプ</th><th>ケーブル</th><th>Cable Type</th><th>Color</th><th>Domain</th></tr></thead>
+          <thead><tr><th>A Rack</th><th>A Device</th><th>A Interface</th><th>A終端タイプ</th><th>B Rack</th><th>B Device</th><th>B Interface</th><th>B終端タイプ</th><th>ケーブル</th><th>Cable Type</th><th>Color</th><th>Domain</th></tr></thead>
           <tbody>
           {% for r in rows %}
             <tr>
+              <td>{{ r.rack_a or '-' }}</td>
               <td>{{ r.a_device }}</td>
               <td>{{ r.a_interface }}</td>
               <td>{{ r.a_type }}</td>
+              <td>{{ r.rack_b or '-' }}</td>
               <td>{{ r.b_device }}</td>
               <td>{{ r.b_interface }}</td>
               <td>{{ r.b_type }}</td>
@@ -140,37 +155,56 @@
       <script>
         const deviceElements = {{ device_graph_json | safe }};
         const select = document.getElementById('componentSelect');
+        const rackSelect = document.getElementById('rackSelect');
+        const showServers = document.getElementById('showServers');
+        const rackFolders = document.getElementById('rackFolders');
+        const roleStats = document.getElementById('roleStats');
         let cy = null;
         let comps = [];
+        let hiddenServerRacks = new Set();
 
         function deviceStyle() {
           return [
-            {
-              selector: 'node.rack',
-              style: {
-                'shape': 'round-rectangle',
-                'background-color': '#eef2ff',
-                'border-width': 2,
-                'border-color': '#4f46e5',
-                'label': 'data(label)',
-                'text-valign': 'top',
-                'text-halign': 'center',
-                'font-size': 12,
-                'padding': '20px',
-              }
-            },
             {
               selector: 'node.device-summary',
               style: {
                 'shape': 'round-rectangle',
                 'background-color': '#0f766e',
+                'border-width': 2,
+                'border-color': '#0b5f59',
                 'color': '#ffffff',
                 'label': 'data(label)',
+                'text-valign': 'center',
+                'text-halign': 'center',
                 'font-size': 9,
                 'text-wrap': 'wrap',
-                'text-max-width': 100,
-                'width': 72,
-                'height': 28,
+                'text-max-width': 110,
+                'width': 78,
+                'height': 30,
+              }
+            },
+            {
+              selector: 'node.device-summary[role = "core"]',
+              style: {
+                'background-color': '#1d4ed8',
+                'border-color': '#1e40af',
+              }
+            },
+            {
+              selector: 'node.device-summary[role = "leaf"]',
+              style: {
+                'background-color': '#0f766e',
+                'border-color': '#0b5f59',
+              }
+            },
+            {
+              selector: 'node.device-summary[role = "server"]',
+              style: {
+                'background-color': '#475569',
+                'border-color': '#334155',
+                'width': 68,
+                'height': 26,
+                'font-size': 8,
               }
             },
             {
@@ -201,7 +235,7 @@
               selector: 'edge',
               style: {
                 'width': 'mapData(count, 1, 8, 2, 6)',
-                'line-color': '#475569',
+                'line-color': 'data(color)',
                 'curve-style': 'bezier',
                 'label': 'data(label)',
                 'font-size': 8,
@@ -212,6 +246,191 @@
             },
             { selector: '.filtered-out', style: { 'display': 'none' } }
           ];
+        }
+
+        function degreeMap() {
+          const d = new Map();
+          cy.nodes('node.device-summary').forEach((n) => d.set(n.id(), n.connectedEdges().length));
+          return d;
+        }
+
+        function quantile(values, q) {
+          if (!values.length) return 0;
+          const sorted = values.slice().sort((a, b) => a - b);
+          const pos = (sorted.length - 1) * q;
+          const base = Math.floor(pos);
+          const rest = pos - base;
+          const a = sorted[base];
+          const b = sorted[Math.min(base + 1, sorted.length - 1)];
+          return a + (b - a) * rest;
+        }
+
+        function classifyRoles() {
+          const deg = degreeMap();
+          const devices = cy.nodes('node.device-summary');
+          const ids = devices.map((n) => n.id());
+          const degrees = ids.map((id) => deg.get(id) || 0);
+          const lowTh = Math.max(1, Math.floor(quantile(degrees, 0.25)));
+          const midTh = Math.max(lowTh + 1, Math.floor(quantile(degrees, 0.50)));
+          const highTh = Math.max(midTh + 1, Math.ceil(quantile(degrees, 0.75)));
+
+          const server = new Set();
+          const leaf = new Set();
+          const core = new Set();
+
+          const neighbors = (id) => (
+            cy.getElementById(id)
+              .connectedEdges()
+              .connectedNodes('node.device-summary')
+              .map((n) => n.id())
+              .filter((x) => x !== id)
+          );
+
+          const hasName = (id, regex) => regex.test((cy.getElementById(id).data('label') || '').toLowerCase());
+
+          ids.forEach((id) => {
+            if (hasName(id, /(server|\-srv\d+|host|compute)/)) server.add(id);
+            if (hasName(id, /(spine|core)/)) core.add(id);
+            if (hasName(id, /(leaf|tor|edge)/)) leaf.add(id);
+          });
+
+          ids.forEach((id) => {
+            const d = deg.get(id) || 0;
+            const ns = neighbors(id);
+            const highNs = ns.filter((n) => (deg.get(n) || 0) >= highTh).length;
+            const lowNs = ns.filter((n) => (deg.get(n) || 0) <= lowTh).length;
+            if (d <= Math.max(2, lowTh) && highNs >= 1 && lowNs === 0) server.add(id);
+          });
+
+          ids.forEach((id) => {
+            if (server.has(id) || core.has(id)) return;
+            const ns = neighbors(id);
+            const serverNs = ns.filter((n) => server.has(n)).length;
+            if (serverNs >= 2 || ((deg.get(id) || 0) >= midTh && serverNs >= 1)) leaf.add(id);
+          });
+
+          ids.forEach((id) => {
+            if (server.has(id) || core.has(id)) return;
+            const ns = neighbors(id);
+            const leafNs = ns.filter((n) => leaf.has(n)).length;
+            const serverNs = ns.filter((n) => server.has(n)).length;
+            if (leafNs >= 2 && serverNs === 0) core.add(id);
+          });
+
+          ids.forEach((id) => {
+            if (server.has(id) || core.has(id) || leaf.has(id)) return;
+            const ns = neighbors(id);
+            const serverNs = ns.filter((n) => server.has(n)).length;
+            const coreNs = ns.filter((n) => core.has(n)).length;
+            if (serverNs > 0) leaf.add(id);
+            else if (coreNs > 0) leaf.add(id);
+            else if ((deg.get(id) || 0) <= lowTh) server.add(id);
+            else leaf.add(id);
+          });
+
+          if (core.size === 0) ids.filter((id) => !server.has(id)).slice(0, 2).forEach((id) => core.add(id));
+          if (leaf.size === 0) ids.filter((id) => !server.has(id)).slice(0, Math.max(2, Math.floor(ids.length * 0.1))).forEach((id) => leaf.add(id));
+          if (server.size === 0) ids.filter((id) => !core.has(id) && !leaf.has(id)).forEach((id) => server.add(id));
+
+          ids.forEach((id) => {
+            if (server.has(id)) cy.getElementById(id).data('role', 'server');
+            else if (core.has(id)) cy.getElementById(id).data('role', 'core');
+            else cy.getElementById(id).data('role', 'leaf');
+          });
+
+          roleStats.innerHTML = `
+            <p>Role件数: Core <strong>${core.size}</strong></p>
+            <p>Role件数: Leaf <strong>${leaf.size}</strong></p>
+            <p>Role件数: Server <strong>${server.size}</strong></p>
+          `;
+        }
+
+        function spreadX(nodes, centerX, minGap) {
+          const n = nodes.length;
+          if (n === 0) return {};
+          const positions = {};
+          const start = centerX - ((n - 1) * minGap) / 2;
+          nodes.forEach((node, i) => {
+            positions[node.id()] = start + i * minGap;
+          });
+          return positions;
+        }
+
+        function applyHierarchicalLayout() {
+          const width = Math.max(cy.width(), 1200);
+          const roleNodes = {
+            core: cy.nodes('node.device-summary[role = "core"]').toArray(),
+            leaf: cy.nodes('node.device-summary[role = "leaf"]').toArray(),
+            server: cy.nodes('node.device-summary[role = "server"]').toArray(),
+          };
+          const yMap = { core: 100, leaf: 340, server: 610 };
+          const positions = {};
+          const deg = degreeMap();
+
+          roleNodes.leaf.sort((a, b) => {
+            const rackCmp = String(a.data('rack') || '').localeCompare(String(b.data('rack') || ''));
+            if (rackCmp !== 0) return rackCmp;
+            return (deg.get(b.id()) || 0) - (deg.get(a.id()) || 0);
+          });
+          const leafX = spreadX(roleNodes.leaf, width / 2, 120);
+          roleNodes.leaf.forEach((n) => { positions[n.id()] = { x: leafX[n.id()], y: yMap.leaf }; });
+
+          roleNodes.core.sort((a, b) => (deg.get(b.id()) || 0) - (deg.get(a.id()) || 0));
+          const coreX = spreadX(roleNodes.core, width / 2, 180);
+          roleNodes.core.forEach((n) => { positions[n.id()] = { x: coreX[n.id()], y: yMap.core }; });
+
+          roleNodes.server.sort((a, b) => String(a.data('rack') || '').localeCompare(String(b.data('rack') || '')));
+          const byRack = new Map();
+          roleNodes.server.forEach((n) => {
+            const rack = n.data('rack') || 'UNASSIGNED';
+            if (!byRack.has(rack)) byRack.set(rack, []);
+            byRack.get(rack).push(n);
+          });
+          for (const [rack, nodes] of byRack.entries()) {
+            const leafInRack = roleNodes.leaf.filter((ln) => (ln.data('rack') || '') === rack).map((ln) => positions[ln.id()]?.x).filter((x) => x !== undefined);
+            const center = leafInRack.length ? leafInRack.reduce((a, b) => a + b, 0) / leafInRack.length : width / 2;
+            const xs = spreadX(nodes, center, 86);
+            nodes.forEach((n) => { positions[n.id()] = { x: xs[n.id()], y: yMap.server }; });
+          }
+
+          cy.layout({
+            name: 'preset',
+            positions: (node) => positions[node.id()] || node.position(),
+            animate: false,
+            fit: true,
+            padding: 40,
+          }).run();
+
+          // Fine collision avoidance within the same horizontal band.
+          ['core', 'leaf', 'server'].forEach((role) => {
+            const nodes = cy.nodes(`node.device-summary[role = "${role}"]`).sort((a, b) => a.position('x') - b.position('x'));
+            const minGap = role === 'server' ? 74 : 92;
+            for (let i = 1; i < nodes.length; i++) {
+              const prev = nodes[i - 1];
+              const cur = nodes[i];
+              const dx = cur.position('x') - prev.position('x');
+              if (dx < minGap) cur.position('x', prev.position('x') + minGap);
+            }
+          });
+          cy.fit(cy.elements(':visible'), 40);
+        }
+
+        function applyReadableSpacing() {
+          const visibleDevices = cy.nodes('node.device-summary:visible');
+          const count = visibleDevices.length;
+          if (!count) return;
+          const densityFactor = count <= 24 ? 1.8 : count <= 48 ? 1.4 : 1.0;
+          ['core', 'leaf', 'server'].forEach((role) => {
+            const nodes = cy.nodes(`node.device-summary[role = "${role}"]:visible`).sort((a, b) => a.position('x') - b.position('x'));
+            const baseGap = role === 'server' ? 74 : 92;
+            const minGap = Math.floor(baseGap * densityFactor);
+            for (let i = 1; i < nodes.length; i++) {
+              const prev = nodes[i - 1];
+              const cur = nodes[i];
+              const dx = cur.position('x') - prev.position('x');
+              if (dx < minGap) cur.position('x', prev.position('x') + minGap);
+            }
+          });
         }
 
         function buildComponents() {
@@ -233,15 +452,62 @@
           });
         }
 
-        function applyComponentFilter(value) {
-          cy.elements().removeClass('filtered-out');
-          if (value === 'all') return;
+        function componentKeep(value) {
+          if (value === 'all') return cy.elements();
           const idx = Number(value);
           const comp = comps[idx];
-          if (!comp) return;
-          const keep = comp.union(comp.nodes().parents());
+          if (!comp) return cy.collection();
+          return comp;
+        }
+
+        function rackKeep(value) {
+          if (value === 'all') return cy.elements();
+          const rackDevices = cy.nodes('node.device-summary').filter((n) => (n.data('rack') || '') === value);
+          if (rackDevices.empty()) return cy.collection();
+          const rackEdges = rackDevices.connectedEdges();
+          const peerDevices = rackEdges.connectedNodes('node.device-summary');
+          return rackDevices.union(rackEdges).union(peerDevices);
+        }
+
+        function serverKeep() {
+          const all = cy.elements();
+          if (showServers.checked) {
+            if (hiddenServerRacks.size === 0) return all;
+            const hidden = cy.nodes('node.device-summary[role = "server"]').filter((n) => hiddenServerRacks.has(n.data('rack') || ''));
+            return all.difference(hidden);
+          }
+          return all.difference(cy.nodes('node.device-summary[role = "server"]'));
+        }
+
+        function buildRackFolders() {
+          const racks = [...new Set(cy.nodes('node.device-summary[role = "server"]').map((n) => n.data('rack') || 'UNASSIGNED'))].sort();
+          rackFolders.innerHTML = '';
+          racks.forEach((rack) => {
+            const id = `rack-folder-${rack.replace(/[^a-zA-Z0-9_-]/g, '_')}`;
+            const row = document.createElement('label');
+            row.className = 'rack-folder-row';
+            row.innerHTML = `<input type="checkbox" id="${id}" checked> ${rack}`;
+            const box = row.querySelector('input');
+            box.addEventListener('change', () => {
+              if (box.checked) hiddenServerRacks.delete(rack);
+              else hiddenServerRacks.add(rack);
+              applyFilters();
+            });
+            rackFolders.appendChild(row);
+          });
+        }
+
+        function applyFilters() {
+          cy.elements().removeClass('filtered-out');
+          const byComp = componentKeep(select.value);
+          const byRack = rackKeep(rackSelect.value);
+          const byServer = serverKeep();
+          const keep = byComp.intersection(byRack).intersection(byServer);
           cy.elements().difference(keep).addClass('filtered-out');
-          cy.fit(keep, 30);
+          if (!keep.empty()) {
+            applyReadableSpacing();
+            cy.fit(keep, 34);
+          }
         }
 
         cy = cytoscape({
@@ -258,15 +524,22 @@
           }
         });
 
+        classifyRoles();
+        applyHierarchicalLayout();
         buildComponents();
+        buildRackFolders();
         fillSelector();
+        showServers.checked = false;
         if (comps.length > 1) {
           select.value = '0';
-          applyComponentFilter('0');
+          applyFilters();
         } else {
           select.value = 'all';
+          applyFilters();
         }
-        select.addEventListener('change', (e) => applyComponentFilter(e.target.value));
+        select.addEventListener('change', applyFilters);
+        rackSelect.addEventListener('change', applyFilters);
+        showServers.addEventListener('change', applyFilters);
       </script>
     {% endif %}
   </main>

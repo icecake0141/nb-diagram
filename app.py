@@ -41,6 +41,10 @@ class CableRow:
     cable_color: str = "#64748b"
     domain: str = "data"
     edge_label: str = ""
+    rack_a: str = ""
+    rack_b: str = ""
+    location_a: str = ""
+    location_b: str = ""
     raw: dict[str, Any] = field(default_factory=dict)
 
 
@@ -240,6 +244,10 @@ def parse_cables_csv(file_bytes: bytes) -> tuple[list[CableRow], dict[str, str |
         a_kind = classify_endpoint_kind(a_type)
         b_kind = classify_endpoint_kind(b_type)
         domain = infer_domain(a_kind, b_kind)
+        rack_a = (row.get("Rack A", "") or "").strip()
+        rack_b = (row.get("Rack B", "") or "").strip()
+        location_a = (row.get("Location A", "") or "").strip()
+        location_b = (row.get("Location B", "") or "").strip()
 
         rows.append(
             CableRow(
@@ -258,6 +266,10 @@ def parse_cables_csv(file_bytes: bytes) -> tuple[list[CableRow], dict[str, str |
                 cable_color=cable_color,
                 domain=domain,
                 edge_label=edge_label,
+                rack_a=rack_a,
+                rack_b=rack_b,
+                location_a=location_a,
+                location_b=location_b,
                 raw=row,
             )
         )
@@ -331,7 +343,7 @@ def build_device_graph(rows: list[CableRow]) -> tuple[list[dict[str, Any]], list
     rack_by_device: dict[str, str] = {}
     pair_counter: dict[tuple[str, str], int] = {}
     pair_types: dict[tuple[str, str], Counter[str]] = {}
-    pair_colors: dict[tuple[str, str], str] = {}
+    pair_colors: dict[tuple[str, str], Counter[str]] = {}
 
     for row in rows:
         dev_a = row.a_device
@@ -340,34 +352,29 @@ def build_device_graph(rows: list[CableRow]) -> tuple[list[dict[str, Any]], list
             continue
         device_nodes.add(dev_a)
         device_nodes.add(dev_b)
-        rack_by_device.setdefault(dev_a, (row.raw.get("Rack A", "") or "").strip())
-        rack_by_device.setdefault(dev_b, (row.raw.get("Rack B", "") or "").strip())
+        rack_by_device.setdefault(dev_a, row.rack_a.strip())
+        rack_by_device.setdefault(dev_b, row.rack_b.strip())
 
         key = tuple(sorted((dev_a, dev_b)))
         pair_counter[key] = pair_counter.get(key, 0) + 1
         if key not in pair_types:
             pair_types[key] = Counter()
         pair_types[key][row.cable_type] += 1
-        pair_colors.setdefault(key, row.cable_color)
+        if key not in pair_colors:
+            pair_colors[key] = Counter()
+        pair_colors[key][row.cable_color] += 1
 
     nodes: list[dict[str, Any]] = []
     edges: list[dict[str, Any]] = []
-    rack_nodes: set[str] = set()
-
     for dev in sorted(device_nodes):
-        rack = rack_by_device.get(dev, "") or "UNASSIGNED"
-        rack_id = f"rack::{rack}"
-        if rack_id not in rack_nodes:
-            rack_nodes.add(rack_id)
-            nodes.append(
-                {
-                    "data": {"id": rack_id, "label": rack, "node_type": "rack"},
-                    "classes": "rack",
-                }
-            )
         nodes.append(
             {
-                "data": {"id": f"dev::{dev}", "label": dev, "parent": rack_id, "node_type": "device"},
+                "data": {
+                    "id": f"dev::{dev}",
+                    "label": dev,
+                    "node_type": "device",
+                    "rack": rack_by_device.get(dev, "") or "UNASSIGNED",
+                },
                 "classes": "device-summary",
             }
         )
@@ -375,6 +382,7 @@ def build_device_graph(rows: list[CableRow]) -> tuple[list[dict[str, Any]], list
     for i, (pair, count) in enumerate(sorted(pair_counter.items()), start=1):
         a, b = pair
         top_type = pair_types[pair].most_common(1)[0][0] if pair_types[pair] else "Unknown"
+        top_color = pair_colors[pair].most_common(1)[0][0] if pair in pair_colors and pair_colors[pair] else "#64748b"
         edges.append(
             {
                 "data": {
@@ -383,7 +391,7 @@ def build_device_graph(rows: list[CableRow]) -> tuple[list[dict[str, Any]], list
                     "target": f"dev::{b}",
                     "label": f"{count} links ({top_type})",
                     "count": count,
-                    "color": pair_colors.get(pair, "#64748b"),
+                    "color": top_color,
                 }
             }
         )
@@ -435,6 +443,12 @@ def store_result(
         )
         con.commit()
         return int(cur.lastrowid)
+
+
+def list_racks(rows: list[CableRow]) -> list[str]:
+    racks = {(r.rack_a or "").strip() for r in rows} | {(r.rack_b or "").strip() for r in rows}
+    racks = {r for r in racks if r}
+    return sorted(racks)
 
 
 def list_recent_results(limit: int = 20) -> list[dict[str, Any]]:
@@ -531,6 +545,7 @@ def upload() -> str:
         "index.html",
         graph_json=json.dumps(nodes + edges, ensure_ascii=False),
         device_graph_json=json.dumps(device_nodes + device_edges, ensure_ascii=False),
+        rack_options=list_racks(rows),
         rows=rows,
         node_count=len(nodes),
         edge_count=len(edges),
@@ -582,6 +597,7 @@ def result_detail(result_id: int) -> str:
         "index.html",
         graph_json=graph_json,
         device_graph_json=json.dumps(device_nodes + device_edges, ensure_ascii=False),
+        rack_options=list_racks(rows),
         rows=rows,
         node_count=record["node_count"],
         edge_count=record["edge_count"],
