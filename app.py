@@ -11,6 +11,7 @@ from collections import Counter
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Any
+from xml.sax.saxutils import escape
 
 from flask import Flask, abort, render_template, request, send_file
 from werkzeug.utils import secure_filename
@@ -553,6 +554,100 @@ def resolve_data_path(rel_path: str) -> Path:
     return path
 
 
+def drawio_node_style(role: str) -> str:
+    base = "rounded=1;whiteSpace=wrap;html=1;fontColor=#ffffff;"
+    styles = {
+        "core": "fillColor=#1d4ed8;strokeColor=#1e40af;",
+        "leaf": "fillColor=#0f766e;strokeColor=#0b5f59;",
+        "server": "fillColor=#475569;strokeColor=#334155;",
+        "powered_device": "fillColor=#64748b;strokeColor=#475569;",
+        "external": "shape=hexagon;fillColor=#1d4ed8;strokeColor=#1e3a8a;",
+        "patch_panel": "fillColor=#a16207;strokeColor=#92400e;",
+        "pdu": "fillColor=#ea580c;strokeColor=#c2410c;",
+        "power_source": "shape=rhombus;fillColor=#dc2626;strokeColor=#991b1b;",
+    }
+    return base + styles.get(role, "fillColor=#0f766e;strokeColor=#0b5f59;")
+
+
+def drawio_edge_style(domain: str, color: str) -> str:
+    base = "edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;"
+    if domain == "power":
+        return base + f"dashed=1;strokeWidth=2;strokeColor={color};"
+    if domain == "circuit":
+        return base + f"dashed=1;dashPattern=1 4;strokeWidth=3;strokeColor={color};"
+    if domain == "pass_through":
+        return base + f"strokeWidth=2.5;strokeColor={color};"
+    return base + f"strokeWidth=2;strokeColor={color};"
+
+
+def build_drawio_xml(elements: list[dict[str, Any]], diagram_name: str) -> str:
+    node_elements = [el for el in elements if "source" not in el.get("data", {})]
+    edge_elements = [el for el in elements if "source" in el.get("data", {})]
+    cols = max(1, int(len(node_elements) ** 0.5))
+    node_w = 140
+    node_h = 48
+    gap_x = 190
+    gap_y = 90
+    start_x = 40
+    start_y = 40
+
+    node_id_map: dict[str, str] = {}
+    xml_parts: list[str] = [
+        '<?xml version="1.0" encoding="UTF-8"?>',
+        '<mxfile host="app.diagrams.net">',
+        f'  <diagram id="{uuid.uuid4().hex[:10]}" name="{escape(diagram_name)}">',
+        '    <mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1920" pageHeight="1080">',
+        "      <root>",
+        '        <mxCell id="0"/>',
+        '        <mxCell id="1" parent="0"/>',
+    ]
+
+    for idx, el in enumerate(node_elements, start=1):
+        data = el.get("data", {})
+        source_id = str(data.get("id", f"node-{idx}"))
+        draw_id = f"n{idx}"
+        node_id_map[source_id] = draw_id
+        role = str(data.get("role") or data.get("role_hint") or "leaf")
+        label = str(data.get("label", source_id))
+        rack = str(data.get("rack", "")).strip()
+        value = label if not rack else f"{label}\\n[{rack}]"
+        x = start_x + (idx - 1) % cols * gap_x
+        y = start_y + (idx - 1) // cols * gap_y
+        xml_parts.append(
+            f'        <mxCell id="{draw_id}" value="{escape(value)}" style="{drawio_node_style(role)}" vertex="1" parent="1">'
+        )
+        xml_parts.append(
+            f'          <mxGeometry x="{x}" y="{y}" width="{node_w}" height="{node_h}" as="geometry"/>'
+        )
+        xml_parts.append("        </mxCell>")
+
+    for idx, el in enumerate(edge_elements, start=1):
+        data = el.get("data", {})
+        src = node_id_map.get(str(data.get("source", "")))
+        dst = node_id_map.get(str(data.get("target", "")))
+        if not src or not dst:
+            continue
+        draw_id = f"e{idx}"
+        label = str(data.get("label", ""))
+        color = str(data.get("color", "#475569"))
+        domain = str(data.get("domain", "data"))
+        xml_parts.append(
+            f'        <mxCell id="{draw_id}" value="{escape(label)}" style="{drawio_edge_style(domain, color)}" edge="1" parent="1" source="{src}" target="{dst}">'
+        )
+        xml_parts.append('          <mxGeometry relative="1" as="geometry"/>')
+        xml_parts.append("        </mxCell>")
+
+    xml_parts.extend(
+        [
+            "      </root>",
+            "    </mxGraphModel>",
+            "  </diagram>",
+            "</mxfile>",
+        ]
+    )
+    return "\n".join(xml_parts)
+
+
 @app.get("/")
 def index() -> str:
     return render_template("index.html", recent_results=list_recent_results())
@@ -713,6 +808,20 @@ def download_file(result_id: int, kind: str):
     elif kind == "graph":
         path = resolve_data_path(record["graph_path"])
         download_name = f"result-{result_id}-graph.json"
+    elif kind == "drawio":
+        rows_path = resolve_data_path(record["rows_path"])
+        if not rows_path.exists():
+            abort(404)
+        row_items = json.loads(rows_path.read_text(encoding="utf-8"))
+        rows = [CableRow(**item) for item in row_items]
+        device_nodes, device_edges = build_device_graph(rows)
+        drawio_xml = build_drawio_xml(device_nodes + device_edges, diagram_name=f"Result-{result_id}")
+        return send_file(
+            io.BytesIO(drawio_xml.encode("utf-8")),
+            as_attachment=True,
+            download_name=f"result-{result_id}-diagram.drawio",
+            mimetype="application/xml",
+        )
     else:
         abort(404)
 

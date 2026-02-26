@@ -40,6 +40,8 @@
                 <a href="{{ url_for('download_file', result_id=item.id, kind='csv') }}">CSV</a>
                 /
                 <a href="{{ url_for('download_file', result_id=item.id, kind='graph') }}">JSON</a>
+                /
+                <a href="{{ url_for('download_file', result_id=item.id, kind='drawio') }}">drawio</a>
               </td>
             </tr>
           {% endfor %}
