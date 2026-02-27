@@ -276,11 +276,53 @@ ruff check . --fix
 ### 画面とエンドポイント
 
 - `GET /`: 初期画面（保存済み結果一覧）
-- `POST /upload`: CSV 解析、グラフ生成、保存
+- `POST /upload`: 非推奨（`410` を返却。API ワークフローを利用）
 - `GET /result/<id>`: 保存済み結果の再表示
 - `GET /files/<id>/csv`: 元 CSV ダウンロード
 - `GET /files/<id>/graph`: グラフ JSON ダウンロード
 - `GET /files/<id>/drawio`: drawio ファイル（集約デバイス図）ダウンロード
+
+### API-first ワークフロー（v1）
+
+- `POST /api/imports`
+  - CSV をアップロードし、import run を作成。マッピング候補を取得
+- `PUT /api/imports/<id>/mapping`
+  - 列マッピングを確定/上書き
+- `POST /api/imports/<id>/execute`
+  - 正規化・グラフ生成を実行
+- `GET /api/imports/<id>`
+  - import 状態・メタデータを取得
+- `GET /api/graphs/<id>?view=device|interface`
+  - フロント描画用グラフ要素を取得
+- `GET /api/exports/<id>?format=json|drawio|csv`
+  - 完了済み import のエクスポートを取得
+- `GET /api/openapi.yaml`
+  - OpenAPI 契約を取得
+
+### フロントエンドモジュール
+
+- ランタイム起動: `static/dist/app-main.js` を優先し、失敗時は `static/app-main.js` へフォールバック
+- フォールバック用モジュール: `static/diagram.js`, `static/import-workflow.js`
+- ソース（Vite + TypeScript）: `frontend/src/*.ts`
+
+### フロントエンドビルド
+
+```bash
+python3 scripts/sync_frontend.py
+python3 scripts/check_frontend_sync.py
+npm install
+npm run frontend:build
+```
+
+ビルド設定: `frontend/vite.config.ts`  
+出力先: `static/dist/`  
+フォールバック先: `static/`
+
+### リリース
+
+- GitHub Release はタグ push（`v*`）で自動実行
+- この再設計後の推奨バージョン: `v0.2.0`
+- リリースノート草案: `docs/releases/v0.2.0.md`
 
 ### 補足
 
