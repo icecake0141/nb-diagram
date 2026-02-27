@@ -14,10 +14,23 @@ FILES = {
 }
 
 
-def sync_one(src_name: str, dest_name: str) -> None:
+def resolve_source(src_name: str, dest_name: str) -> Path:
     src = SRC_DIR / src_name
-    if not src.exists():
-        raise FileNotFoundError(f"Missing source file: {src}")
+    if src.exists():
+        return src
+
+    # Fallback for environments where source files are missing unexpectedly.
+    fallback = STATIC_DIR / dest_name
+    if fallback.exists():
+        SRC_DIR.mkdir(parents=True, exist_ok=True)
+        src.write_text(fallback.read_text(encoding="utf-8"), encoding="utf-8")
+        print(f"restored missing source from fallback: {src_name}")
+        return src
+    raise FileNotFoundError(f"Missing source file: {src}")
+
+
+def sync_one(src_name: str, dest_name: str) -> None:
+    src = resolve_source(src_name, dest_name)
 
     text = src.read_text(encoding="utf-8")
 

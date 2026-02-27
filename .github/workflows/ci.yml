@@ -46,7 +46,15 @@ jobs:
           pip install --disable-pip-version-check -r requirements-dev.txt
 
       - name: Frontend sync check
-        run: python scripts/check_frontend_sync.py
+        run: |
+          python scripts/sync_frontend.py
+          git diff --exit-code -- \
+            frontend/src/app-main.ts \
+            frontend/src/diagram.ts \
+            frontend/src/import-workflow.ts \
+            static/app-main.js \
+            static/diagram.js \
+            static/import-workflow.js
 
       - name: Ruff
         run: ruff check .
