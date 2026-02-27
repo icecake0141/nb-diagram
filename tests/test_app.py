@@ -205,8 +205,8 @@ class AppLogicTests(unittest.TestCase):
 
         xml = build_drawio_xml(elements, diagram_name='Main & "Core"')
 
-        self.assertIn('Main &amp; "Core"', xml)
-        self.assertIn('sw&lt;1&gt;&amp;"edge"', xml)
+        self.assertIn('Main &amp; &quot;Core&quot;', xml)
+        self.assertIn('sw&lt;1&gt;&amp;&quot;edge&quot;', xml)
         self.assertIn("link&lt;1&gt;", xml)
         self.assertIn('source="n1"', xml)
         self.assertIn('target="n2"', xml)
@@ -242,30 +242,23 @@ class UploadSecurityTests(unittest.TestCase):
         app_module.DB_PATH = self.original_db_path
         self.temp_dir.cleanup()
 
-    def test_upload_escapes_script_payload_in_embedded_json(self):
-        payload = "</script><script>window.pwned=1</script>"
+    def test_legacy_upload_endpoint_is_deprecated(self):
         csv_bytes = (
             "Termination A Device,Termination A Name,Termination B Device,Termination B Name,Type\n"
-            f'"{payload}",xe-0/0/1,sw2,xe-0/0/2,Cat6\n'
+            "sw1,xe-0/0/1,sw2,xe-0/0/2,Cat6\n"
         ).encode("utf-8")
         response = self.client.post(
             "/upload",
-            data={"csv_file": (io.BytesIO(csv_bytes), "payload.csv")},
+            data={"csv_file": (io.BytesIO(csv_bytes), "legacy.csv")},
             content_type="multipart/form-data",
         )
-
-        html = response.get_data(as_text=True)
-        escaped_payload = (
-            "\\u003c/script\\u003e\\u003cscript\\u003ewindow.pwned=1\\u003c/script\\u003e"
-        )
-        self.assertEqual(response.status_code, 200)
-        self.assertNotIn(payload, html)
-        self.assertIn(escaped_payload, html)
+        self.assertEqual(response.status_code, 410)
+        self.assertIn("Legacy /upload is deprecated.", response.get_data(as_text=True))
 
     def test_upload_rejects_file_over_limit(self):
         too_large = b"a" * (app.config["MAX_CONTENT_LENGTH"] + 1)
         response = self.client.post(
-            "/upload",
+            "/api/imports",
             data={"csv_file": (io.BytesIO(too_large), "too-large.csv")},
             content_type="multipart/form-data",
         )
@@ -273,6 +266,151 @@ class UploadSecurityTests(unittest.TestCase):
         html = response.get_data(as_text=True)
         self.assertEqual(response.status_code, 413)
         self.assertIn("Uploaded file is too large. Maximum size is 5 MiB.", html)
+
+    def test_api_import_endpoints(self):
+        csv_bytes = (
+            "Termination A Device,Termination A Name,Termination B Device,Termination B Name,Type\n"
+            "sw1,xe-0/0/1,sw2,xe-0/0/2,Cat6\n"
+        ).encode("utf-8")
+        create_resp = self.client.post(
+            "/api/imports",
+            data={"csv_file": (io.BytesIO(csv_bytes), "api.csv")},
+            content_type="multipart/form-data",
+        )
+        self.assertEqual(create_resp.status_code, 201)
+        body = create_resp.get_json()
+        self.assertIsNotNone(body)
+        assert body is not None
+        self.assertIn("import_id", body)
+        self.assertEqual(body["status"], "uploaded")
+        self.assertIn("headers", body)
+        import_id = body["import_id"]
+
+        mapping_resp = self.client.put(
+            f"/api/imports/{import_id}/mapping",
+            json={"mapping": body["mapping_candidates"]},
+        )
+        self.assertEqual(mapping_resp.status_code, 200)
+
+        execute_resp = self.client.post(f"/api/imports/{import_id}/execute")
+        self.assertEqual(execute_resp.status_code, 200)
+        execute_body = execute_resp.get_json()
+        self.assertIsNotNone(execute_body)
+        assert execute_body is not None
+        self.assertEqual(execute_body["status"], "completed")
+
+        get_resp = self.client.get(f"/api/imports/{import_id}")
+        self.assertEqual(get_resp.status_code, 200)
+        get_body = get_resp.get_json()
+        self.assertIsNotNone(get_body)
+        assert get_body is not None
+        self.assertEqual(get_body["import_id"], import_id)
+        self.assertEqual(get_body["status"], "completed")
+        self.assertGreater(get_body["node_count"], 0)
+
+    def test_api_graphs_and_exports_after_execute(self):
+        csv_bytes = (
+            "Termination A Device,Termination A Name,Termination B Device,Termination B Name,Type\n"
+            "sw1,xe-0/0/1,sw2,xe-0/0/2,Cat6\n"
+        ).encode("utf-8")
+        create_resp = self.client.post(
+            "/api/imports",
+            data={"csv_file": (io.BytesIO(csv_bytes), "api-graph.csv")},
+            content_type="multipart/form-data",
+        )
+        body = create_resp.get_json()
+        self.assertIsNotNone(body)
+        assert body is not None
+        import_id = body["import_id"]
+        self.client.put(
+            f"/api/imports/{import_id}/mapping",
+            json={"mapping": body["mapping_candidates"]},
+        )
+        self.client.post(f"/api/imports/{import_id}/execute")
+
+        graph_resp = self.client.get(f"/api/graphs/{import_id}?view=device")
+        self.assertEqual(graph_resp.status_code, 200)
+        graph_body = graph_resp.get_json()
+        self.assertIsNotNone(graph_body)
+        assert graph_body is not None
+        self.assertEqual(graph_body["view"], "device")
+        self.assertGreater(len(graph_body["elements"]), 0)
+
+        export_resp = self.client.get(f"/api/exports/{import_id}?format=drawio")
+        self.assertEqual(export_resp.status_code, 200)
+        self.assertIn("application/xml", export_resp.content_type)
+
+    def test_api_import_requires_file(self):
+        response = self.client.post("/api/imports", data={}, content_type="multipart/form-data")
+        self.assertEqual(response.status_code, 400)
+
+    def test_api_graph_requires_completed_import(self):
+        csv_bytes = (
+            "Termination A Device,Termination A Name,Termination B Device,Termination B Name,Type\n"
+            "sw1,xe-0/0/1,sw2,xe-0/0/2,Cat6\n"
+        ).encode("utf-8")
+        create_resp = self.client.post(
+            "/api/imports",
+            data={"csv_file": (io.BytesIO(csv_bytes), "api-state.csv")},
+            content_type="multipart/form-data",
+        )
+        body = create_resp.get_json()
+        self.assertIsNotNone(body)
+        assert body is not None
+        import_id = body["import_id"]
+
+        graph_resp = self.client.get(f"/api/graphs/{import_id}?view=device")
+        self.assertEqual(graph_resp.status_code, 409)
+
+    def test_api_mapping_rejects_non_object(self):
+        csv_bytes = (
+            "Termination A Device,Termination A Name,Termination B Device,Termination B Name,Type\n"
+            "sw1,xe-0/0/1,sw2,xe-0/0/2,Cat6\n"
+        ).encode("utf-8")
+        create_resp = self.client.post(
+            "/api/imports",
+            data={"csv_file": (io.BytesIO(csv_bytes), "api-map.csv")},
+            content_type="multipart/form-data",
+        )
+        body = create_resp.get_json()
+        self.assertIsNotNone(body)
+        assert body is not None
+        import_id = body["import_id"]
+
+        map_resp = self.client.put(
+            f"/api/imports/{import_id}/mapping",
+            json={"mapping": "invalid"},
+        )
+        self.assertEqual(map_resp.status_code, 400)
+
+    def test_api_exports_rejects_unknown_format(self):
+        csv_bytes = (
+            "Termination A Device,Termination A Name,Termination B Device,Termination B Name,Type\n"
+            "sw1,xe-0/0/1,sw2,xe-0/0/2,Cat6\n"
+        ).encode("utf-8")
+        create_resp = self.client.post(
+            "/api/imports",
+            data={"csv_file": (io.BytesIO(csv_bytes), "api-export.csv")},
+            content_type="multipart/form-data",
+        )
+        body = create_resp.get_json()
+        self.assertIsNotNone(body)
+        assert body is not None
+        import_id = body["import_id"]
+        self.client.put(
+            f"/api/imports/{import_id}/mapping",
+            json={"mapping": body["mapping_candidates"]},
+        )
+        self.client.post(f"/api/imports/{import_id}/execute")
+
+        export_resp = self.client.get(f"/api/exports/{import_id}?format=foo")
+        self.assertEqual(export_resp.status_code, 400)
+
+    def test_openapi_endpoint_serves_spec(self):
+        response = self.client.get("/api/openapi.yaml")
+        self.assertEqual(response.status_code, 200)
+        text = response.get_data(as_text=True)
+        self.assertIn("openapi: 3.1.0", text)
 
 
 if __name__ == "__main__":
