@@ -152,6 +152,12 @@ Build config: `frontend/vite.config.ts`
 Build output target: `static/dist/`  
 Fallback runtime target: `static/`
 
+### Release
+
+- GitHub release workflow runs on tag push (`v*`).
+- Recommended next version after this redesign: `v0.2.0`.
+- Suggested release notes draft: `docs/releases/v0.2.0.md`.
+
 ### Notes
 
 - Backend: Flask 3.1
