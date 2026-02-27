@@ -7,7 +7,7 @@ from xml.sax.saxutils import escape
 
 
 def xml_attr(value: str) -> str:
-    return escape(value, {'"': '&quot;'})
+    return escape(value, {'"': "&quot;"})
 
 
 def drawio_node_style(role: str) -> str:
@@ -137,10 +137,7 @@ def build_drawio_xml(elements: list[dict[str, Any]], diagram_name: str) -> str:
     }
 
     rack_names = sorted(
-        {
-            str(el.get("data", {}).get("rack", "")).strip() or "UNASSIGNED"
-            for el in device_nodes
-        }
+        {str(el.get("data", {}).get("rack", "")).strip() or "UNASSIGNED" for el in device_nodes}
     )
     if not rack_names:
         rack_names = ["UNASSIGNED"]

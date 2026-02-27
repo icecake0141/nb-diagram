@@ -205,8 +205,8 @@ class AppLogicTests(unittest.TestCase):
 
         xml = build_drawio_xml(elements, diagram_name='Main & "Core"')
 
-        self.assertIn('Main &amp; &quot;Core&quot;', xml)
-        self.assertIn('sw&lt;1&gt;&amp;&quot;edge&quot;', xml)
+        self.assertIn("Main &amp; &quot;Core&quot;", xml)
+        self.assertIn("sw&lt;1&gt;&amp;&quot;edge&quot;", xml)
         self.assertIn("link&lt;1&gt;", xml)
         self.assertIn('source="n1"', xml)
         self.assertIn('target="n2"', xml)
