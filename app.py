@@ -10,7 +10,7 @@ import uuid
 from collections import Counter
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
-from typing import Any
+from typing import Any, Sequence
 from xml.sax.saxutils import escape
 
 from flask import Flask, abort, render_template, request, send_file
@@ -65,7 +65,7 @@ def detect_encoding(file_bytes: bytes) -> str:
     return "utf-8"
 
 
-def find_column(headers: list[str], patterns: list[str]) -> str | None:
+def find_column(headers: Sequence[str], patterns: Sequence[str]) -> str | None:
     normalized = {h: normalize(h) for h in headers}
     for pattern in patterns:
         regex = re.compile(pattern)
@@ -75,7 +75,7 @@ def find_column(headers: list[str], patterns: list[str]) -> str | None:
     return None
 
 
-def choose_columns(headers: list[str]) -> dict[str, str | None]:
+def choose_columns(headers: Sequence[str]) -> dict[str, str | None]:
     return {
         "a_device": find_column(
             headers, [r"terminationa.*device", r"sidea.*device", r"devicea", r"adevice"]
@@ -396,7 +396,8 @@ def build_device_graph(rows: list[CableRow]) -> tuple[list[dict[str, Any]], list
         bump_kind(dev_a, row.a_kind)
         bump_kind(dev_b, row.b_kind)
 
-        key = tuple(sorted((dev_a, dev_b)))
+        dev_x, dev_y = sorted((dev_a, dev_b))
+        key = (dev_x, dev_y)
         pair_counter[key] = pair_counter.get(key, 0) + 1
         if key not in pair_types:
             pair_types[key] = Counter()
@@ -520,7 +521,10 @@ def store_result(
             ),
         )
         con.commit()
-        return int(cur.lastrowid)
+        row_id = cur.lastrowid
+        if row_id is None:
+            raise RuntimeError("Failed to persist result row.")
+        return int(row_id)
 
 
 def list_racks(rows: list[CableRow]) -> list[str]:
@@ -688,10 +692,7 @@ def build_drawio_xml(elements: list[dict[str, Any]], diagram_name: str) -> str:
     }
 
     rack_names = sorted(
-        {
-            str(el.get("data", {}).get("rack", "")).strip() or "UNASSIGNED"
-            for el in device_nodes
-        }
+        {str(el.get("data", {}).get("rack", "")).strip() or "UNASSIGNED" for el in device_nodes}
     )
     if not rack_names:
         rack_names = ["UNASSIGNED"]
@@ -795,18 +796,18 @@ def build_drawio_xml(elements: list[dict[str, Any]], diagram_name: str) -> str:
 
     for idx, el in enumerate(edge_elements, start=1):
         data = el.get("data", {})
-        src = node_id_map.get(str(data.get("source", "")))
-        dst = node_id_map.get(str(data.get("target", "")))
-        if not src or not dst:
+        src_id = node_id_map.get(str(data.get("source", "")))
+        dst_id = node_id_map.get(str(data.get("target", "")))
+        if not src_id or not dst_id:
             continue
         draw_id = f"e{idx}"
         label = str(data.get("label", ""))
         color = str(data.get("color", "#475569"))
         domain = str(data.get("domain", "data"))
         src_x = src_y = dst_x = dst_y = None
-        if src in node_geom_by_id and dst in node_geom_by_id:
-            s_cx, s_cy, _, _ = node_geom_by_id[src]
-            t_cx, t_cy, _, _ = node_geom_by_id[dst]
+        if src_id in node_geom_by_id and dst_id in node_geom_by_id:
+            s_cx, s_cy, _, _ = node_geom_by_id[src_id]
+            t_cx, t_cy, _, _ = node_geom_by_id[dst_id]
             if abs(t_cy - s_cy) >= abs(t_cx - s_cx):
                 src_x = 0.5
                 src_y = 1.0 if t_cy > s_cy else 0.0
@@ -826,7 +827,7 @@ def build_drawio_xml(elements: list[dict[str, Any]], diagram_name: str) -> str:
         xml_parts.append(
             f'        <mxCell id="{draw_id}" value="{escape(label)}" '
             f'style="{drawio_edge_style(domain, color)}{snap_ports}" edge="1" parent="1" '
-            f'source="{src}" target="{dst}">'
+            f'source="{src_id}" target="{dst_id}">'
         )
         xml_parts.append('          <mxGeometry relative="1" as="geometry"/>')
         xml_parts.append("        </mxCell>")

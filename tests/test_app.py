@@ -243,7 +243,7 @@ class UploadSecurityTests(unittest.TestCase):
         self.temp_dir.cleanup()
 
     def test_upload_escapes_script_payload_in_embedded_json(self):
-        payload = '</script><script>window.pwned=1</script>'
+        payload = "</script><script>window.pwned=1</script>"
         csv_bytes = (
             "Termination A Device,Termination A Name,Termination B Device,Termination B Name,Type\n"
             f'"{payload}",xe-0/0/1,sw2,xe-0/0/2,Cat6\n'

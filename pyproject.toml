@@ -17,3 +17,6 @@ exclude = [".git", ".venv", "data", "worktrees"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "B"]
+
+[tool.mypy]
+exclude = "(^|/)(\\.git|\\.venv|data|worktrees)(/|$)"
