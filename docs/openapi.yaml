@@ -1,0 +1,141 @@
+openapi: 3.1.0
+info:
+  title: nb-cartographer API
+  version: 1.0.0
+  description: API-first import, mapping, execute, graph, and export workflow.
+servers:
+  - url: http://localhost:8000
+paths:
+  /api/imports:
+    post:
+      summary: Create import run from CSV
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [csv_file]
+              properties:
+                csv_file:
+                  type: string
+                  format: binary
+      responses:
+        '201':
+          description: Import created
+        '400':
+          description: Invalid upload request
+  /api/imports/{import_id}:
+    get:
+      summary: Get import status and metadata
+      parameters:
+        - in: path
+          name: import_id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Import status
+        '404':
+          description: Import not found
+  /api/imports/{import_id}/mapping:
+    put:
+      summary: Save deterministic mapping
+      parameters:
+        - in: path
+          name: import_id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [mapping]
+              properties:
+                mapping:
+                  type: object
+                  additionalProperties:
+                    type: [string, 'null']
+      responses:
+        '200':
+          description: Mapping accepted
+        '400':
+          description: Invalid mapping
+        '404':
+          description: Import not found
+  /api/imports/{import_id}/execute:
+    post:
+      summary: Execute import run
+      parameters:
+        - in: path
+          name: import_id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Import completed
+        '404':
+          description: Import not found
+        '422':
+          description: Import execution failed
+  /api/graphs/{import_id}:
+    get:
+      summary: Fetch graph elements
+      parameters:
+        - in: path
+          name: import_id
+          required: true
+          schema:
+            type: integer
+        - in: query
+          name: view
+          required: false
+          schema:
+            type: string
+            enum: [device, interface]
+            default: device
+      responses:
+        '200':
+          description: Graph payload
+        '404':
+          description: Import not found
+        '409':
+          description: Import not completed
+  /api/exports/{import_id}:
+    get:
+      summary: Download export artifact
+      parameters:
+        - in: path
+          name: import_id
+          required: true
+          schema:
+            type: integer
+        - in: query
+          name: format
+          required: false
+          schema:
+            type: string
+            enum: [json, drawio, csv]
+            default: json
+      responses:
+        '200':
+          description: Export artifact stream
+        '400':
+          description: Unsupported format
+        '404':
+          description: Import not found
+        '409':
+          description: Import not completed
+  /api/openapi.yaml:
+    get:
+      summary: Download OpenAPI specification
+      responses:
+        '200':
+          description: OpenAPI YAML
+        '404':
+          description: Spec not found

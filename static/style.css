@@ -228,3 +228,32 @@ th, td {
   gap: 6px;
   font-size: 13px;
 }
+
+.api-workflow {
+  margin-top: 12px;
+  margin-bottom: 12px;
+}
+
+.api-mapping-panel {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+#apiMappingJson {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 8px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.api-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
