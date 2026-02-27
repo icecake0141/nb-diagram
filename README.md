@@ -110,11 +110,47 @@ If major columns are missing, the UI shows the undetected column list.
 ### Screens and Endpoints
 
 - `GET /`: initial page (saved result list)
-- `POST /upload`: parse CSV, generate graph, and store result
+- `POST /upload`: deprecated (returns 410; use API workflow)
 - `GET /result/<id>`: reopen a saved result
 - `GET /files/<id>/csv`: download original CSV
 - `GET /files/<id>/graph`: download graph JSON
 - `GET /files/<id>/drawio`: download drawio file (aggregated device diagram)
+
+### API-first Workflow (v1)
+
+- `POST /api/imports`
+  - Upload CSV, create an import run, and receive mapping candidates.
+- `PUT /api/imports/<id>/mapping`
+  - Confirm/override mapping for deterministic parsing.
+- `POST /api/imports/<id>/execute`
+  - Execute normalization and graph generation.
+- `GET /api/imports/<id>`
+  - Check import status and metadata.
+- `GET /api/graphs/<id>?view=device|interface`
+  - Fetch graph elements for frontend rendering.
+- `GET /api/exports/<id>?format=json|drawio|csv`
+  - Download export artifacts from completed imports.
+- `GET /api/openapi.yaml`
+  - Download the pinned OpenAPI contract.
+
+### Frontend Modules
+
+- Runtime boot: tries `static/dist/app-main.js`, then falls back to `static/app-main.js`
+- Fallback runtime modules: `static/diagram.js`, `static/import-workflow.js`
+- Source modules (Vite + TypeScript): `frontend/src/*.ts`
+
+### Frontend Build
+
+```bash
+python3 scripts/sync_frontend.py
+python3 scripts/check_frontend_sync.py
+npm install
+npm run frontend:build
+```
+
+Build config: `frontend/vite.config.ts`  
+Build output target: `static/dist/`  
+Fallback runtime target: `static/`
 
 ### Notes
 

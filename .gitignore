@@ -146,3 +146,5 @@ import/*
 !import/.gitkeep
 data/
 worktrees/
+node_modules/
+static/dist/
