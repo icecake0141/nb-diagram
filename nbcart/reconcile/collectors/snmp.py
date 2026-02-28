@@ -10,6 +10,7 @@ from ..normalize import normalize_link
 LLDP_REM_SYSNAME_OID = ".1.0.8802.1.1.2.1.4.1.1.9"
 LLDP_REM_PORTID_OID = ".1.0.8802.1.1.2.1.4.1.1.7"
 LLDP_LOC_PORTDESC_OID = ".1.0.8802.1.1.2.1.3.7.1.4"
+IF_NAME_OID = ".1.3.6.1.2.1.31.1.1.1.1"
 
 
 class SnmpLldpCollector:
@@ -119,6 +120,14 @@ class SnmpLldpCollector:
             retries=retries,
             port=port,
         )
+        if_name_out = self._run_walk(
+            host=host,
+            community=community,
+            oid=IF_NAME_OID,
+            timeout=timeout,
+            retries=retries,
+            port=port,
+        )
 
         remote_sys_by_key: dict[tuple[int, int], str] = {}
         remote_port_by_key: dict[tuple[int, int], str] = {}
@@ -152,6 +161,15 @@ class SnmpLldpCollector:
             if not indices or not value:
                 continue
             local_desc_by_port[indices[-1]] = value
+
+        for line in if_name_out.splitlines():
+            parsed = self._parse_walk_line(line)
+            if parsed is None:
+                continue
+            indices, value = parsed
+            if not indices or not value:
+                continue
+            local_desc_by_port.setdefault(indices[-1], value)
 
         links: list[LinkRecord] = []
         for key, remote_device in remote_sys_by_key.items():

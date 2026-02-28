@@ -62,6 +62,38 @@ class SshCollectorTests(unittest.TestCase):
         )
         self.assertEqual(len(links), 1)
 
+    def test_collect_accepts_neighbor_alias_keys(self):
+        collector = SshLldpCollector()
+        links = collector.collect(
+            seed_device="spine-01",
+            params={
+                "neighbors": [
+                    {
+                        "local_port": "xe-0/0/1",
+                        "system_name": "leaf-01",
+                        "port_id": "Eth1/1",
+                    }
+                ]
+            },
+        )
+        self.assertEqual(len(links), 1)
+        self.assertEqual(links[0].left.device, "leaf-01")
+
+    @patch("nbcart.reconcile.collectors.ssh.subprocess.run")
+    def test_collect_parses_pipe_separated_table_lines(self, run_mock):
+        class Result:
+            returncode = 0
+            stderr = ""
+            stdout = "xe-0/0/1 | leaf-01 | Eth1/1\nxe-0/0/2 | leaf-02 | Eth1/2\n"
+
+        run_mock.return_value = Result()
+        collector = SshLldpCollector()
+        links = collector.collect(
+            seed_device="spine-01",
+            params={"host": "192.0.2.20", "username": "netops", "command": "show lldp"},
+        )
+        self.assertEqual(len(links), 2)
+
 
 if __name__ == "__main__":
     unittest.main()

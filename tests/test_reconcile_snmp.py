@@ -39,6 +39,10 @@ class SnmpCollectorTests(unittest.TestCase):
                 '.1.0.8802.1.1.2.1.3.7.1.4.12 = STRING: "xe-0/0/12"\n'
                 '.1.0.8802.1.1.2.1.3.7.1.4.13 = STRING: "xe-0/0/13"\n'
             ),
+            mk(
+                '.1.3.6.1.2.1.31.1.1.1.1.12 = STRING: "xe-0/0/12"\n'
+                '.1.3.6.1.2.1.31.1.1.1.1.13 = STRING: "xe-0/0/13"\n'
+            ),
         ]
 
         collector = SnmpLldpCollector()
@@ -54,7 +58,7 @@ class SnmpCollectorTests(unittest.TestCase):
         }
         self.assertIn(("leaf-01", "ethernet1/1", "spine-01", "xe-0/0/12"), keys)
         self.assertIn(("leaf-02", "ethernet1/2", "spine-01", "xe-0/0/13"), keys)
-        self.assertEqual(run_mock.call_count, 3)
+        self.assertEqual(run_mock.call_count, 4)
 
     @patch("nbcart.reconcile.collectors.snmp.subprocess.run")
     def test_collect_raises_on_snmp_error(self, run_mock):
@@ -89,6 +93,7 @@ class SnmpCollectorTests(unittest.TestCase):
             mk('.1.0.8802.1.1.2.1.4.1.1.9.600.12.1 = STRING: "leaf-01"\n'),
             mk('.1.0.8802.1.1.2.1.4.1.1.7.600.12.1 = STRING: "Ethernet1/1"\n'),
             mk('.1.0.8802.1.1.2.1.3.7.1.4.12 = STRING: "xe-0/0/12"\n'),
+            mk('.1.3.6.1.2.1.31.1.1.1.1.12 = STRING: "xe-0/0/12"\n'),
         ]
 
         collector = SnmpLldpCollector()
@@ -99,6 +104,32 @@ class SnmpCollectorTests(unittest.TestCase):
         self.assertEqual(len(links), 1)
         used_cmd = run_mock.call_args_list[0][0][0]
         self.assertIn("from-env", used_cmd)
+
+    @patch("nbcart.reconcile.collectors.snmp.subprocess.run")
+    def test_collect_falls_back_to_ifname_when_lldp_local_desc_missing(self, run_mock):
+        def mk(stdout: str):
+            class Result:
+                pass
+
+            r = Result()
+            r.stdout = stdout
+            r.stderr = ""
+            r.returncode = 0
+            return r
+
+        run_mock.side_effect = [
+            mk('.1.0.8802.1.1.2.1.4.1.1.9.600.12.1 = STRING: "leaf-01"\n'),
+            mk('.1.0.8802.1.1.2.1.4.1.1.7.600.12.1 = STRING: "Ethernet1/1"\n'),
+            mk(""),
+            mk('.1.3.6.1.2.1.31.1.1.1.1.12 = STRING: "xe-0/0/12"\n'),
+        ]
+        collector = SnmpLldpCollector()
+        links = collector.collect(
+            seed_device="spine-01",
+            params={"host": "192.0.2.10", "community": "public"},
+        )
+        self.assertEqual(len(links), 1)
+        self.assertEqual(links[0].right.interface, "xe-0/0/12")
 
 
 if __name__ == "__main__":

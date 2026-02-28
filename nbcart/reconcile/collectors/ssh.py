@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import re
 import subprocess
 
 from ..models import LinkRecord
@@ -8,6 +9,17 @@ from ..normalize import normalize_link
 
 
 class SshLldpCollector:
+    @staticmethod
+    def _pick(item: dict[str, object], keys: list[str]) -> str:
+        for key in keys:
+            value = item.get(key)
+            if value is None:
+                continue
+            text = str(value).strip()
+            if text:
+                return text
+        return ""
+
     def _collect_from_neighbors_param(
         self,
         *,
@@ -21,9 +33,17 @@ class SshLldpCollector:
         for item in raw_neighbors:
             if not isinstance(item, dict):
                 continue
-            local_interface = str(item.get("local_interface", "")).strip()
-            remote_device = str(item.get("remote_device", "")).strip()
-            remote_interface = str(item.get("remote_interface", "")).strip()
+            local_interface = self._pick(
+                item,
+                ["local_interface", "local_if", "local_port", "port", "interface"],
+            )
+            remote_device = self._pick(
+                item, ["remote_device", "neighbor", "system_name", "chassis"]
+            )
+            remote_interface = self._pick(
+                item,
+                ["remote_interface", "remote_if", "neighbor_port", "port_id"],
+            )
             if not all((local_interface, remote_device, remote_interface)):
                 continue
             links.append(
@@ -46,9 +66,18 @@ class SshLldpCollector:
                 for item in payload:
                     if not isinstance(item, dict):
                         continue
-                    local_interface = str(item.get("local_interface", "")).strip()
-                    remote_device = str(item.get("remote_device", "")).strip()
-                    remote_interface = str(item.get("remote_interface", "")).strip()
+                    local_interface = SshLldpCollector._pick(
+                        item,
+                        ["local_interface", "local_if", "local_port", "port", "interface"],
+                    )
+                    remote_device = SshLldpCollector._pick(
+                        item,
+                        ["remote_device", "neighbor", "system_name", "chassis"],
+                    )
+                    remote_interface = SshLldpCollector._pick(
+                        item,
+                        ["remote_interface", "remote_if", "neighbor_port", "port_id"],
+                    )
                     if not all((local_interface, remote_device, remote_interface)):
                         continue
                     links.append(
@@ -62,6 +91,19 @@ class SshLldpCollector:
 
         links = []
         for line in text.splitlines():
+            pipe_parts = [
+                part.strip() for part in re.split(r"\s*\|\s*", line.strip()) if part.strip()
+            ]
+            if len(pipe_parts) >= 3:
+                local_interface, remote_device, remote_interface = pipe_parts[:3]
+                if all((local_interface, remote_device, remote_interface)):
+                    links.append(
+                        normalize_link(
+                            seed_device, local_interface, remote_device, remote_interface
+                        )
+                    )
+                    continue
+
             parts = [part.strip() for part in line.split(",")]
             if len(parts) < 3:
                 continue
