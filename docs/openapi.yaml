@@ -1,8 +1,8 @@
 openapi: 3.1.0
 info:
   title: nb-cartographer API
-  version: 1.0.0
-  description: API-first import, mapping, execute, graph, and export workflow.
+  version: 1.1.0
+  description: API-first import, mapping, execute, graph, export, and reconcile workflow.
 servers:
   - url: http://localhost:8000
 paths:
@@ -165,6 +165,129 @@ paths:
           description: Invalid positions payload
         '404':
           description: Result not found
+  /api/reconcile-runs:
+    post:
+      summary: Create reconcile run
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [import_id, method, params]
+              properties:
+                import_id:
+                  type: integer
+                method:
+                  type: string
+                  enum: [payload, snmp, ssh]
+                seed_device:
+                  type: string
+                params:
+                  type: object
+                  additionalProperties: true
+                  description: |
+                    Method-specific options.
+                    payload: { neighbors: [{ local_device, local_interface, remote_device, remote_interface }] }
+                    snmp: { host, community|community_env, timeout?, retries?, port? }
+                    ssh: { neighbors? } or { host, username, (command|vendor), timeout? }
+                    ssh vendor: arista_eos | cisco_ios | cisco_nxos | juniper_junos
+      responses:
+        '201':
+          description: Reconcile run created
+        '400':
+          description: Invalid request payload
+        '404':
+          description: Import not found
+        '409':
+          description: Import not completed
+  /api/reconcile-runs/{run_id}:
+    get:
+      summary: Get reconcile run status and report
+      parameters:
+        - in: path
+          name: run_id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Reconcile run status
+        '404':
+          description: Reconcile run not found
+  /api/reconcile-runs/{run_id}/execute:
+    post:
+      summary: Execute reconcile run
+      parameters:
+        - in: path
+          name: run_id
+          required: true
+          schema:
+            type: integer
+        - in: query
+          name: async
+          required: false
+          schema:
+            type: boolean
+            default: false
+          description: Run in background and return immediately with running status.
+      responses:
+        '200':
+          description: Reconcile completed
+        '202':
+          description: Reconcile accepted/running
+        '404':
+          description: Reconcile run not found
+        '422':
+          description: Reconcile failed (validation/runtime error)
+        '501':
+          description: Collector backend is unavailable
+  /api/reconcile/compare:
+    post:
+      summary: Execute one-shot reconcile without persisting a reconcile run
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [import_id, method, params]
+              properties:
+                import_id:
+                  type: integer
+                method:
+                  type: string
+                  enum: [payload, snmp, ssh]
+                seed_device:
+                  type: string
+                params:
+                  type: object
+                  additionalProperties: true
+                  description: |
+                    Method-specific options.
+                    payload: { neighbors: [{ local_device, local_interface, remote_device, remote_interface }] }
+                    snmp: { host, community|community_env, timeout?, retries?, port? }
+                    ssh: { neighbors? } or { host, username, (command|vendor), timeout? }
+                    ssh vendor: arista_eos | cisco_ios | cisco_nxos | juniper_junos
+      responses:
+        '200':
+          description: Reconcile report
+        '400':
+          description: Invalid request payload
+        '404':
+          description: Import or result not found
+        '409':
+          description: Import not completed
+        '422':
+          description: Reconcile failed (validation/runtime error)
+        '501':
+          description: Collector backend is unavailable
+  /api/reconcile/ssh-vendors:
+    get:
+      summary: List supported SSH vendor profiles and default commands
+      responses:
+        '200':
+          description: Supported vendor profile list
   /api/openapi.yaml:
     get:
       summary: Download OpenAPI specification

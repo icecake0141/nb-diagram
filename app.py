@@ -5,6 +5,7 @@ import datetime as dt
 import io
 import json
 import sqlite3
+import threading
 import uuid
 from collections import Counter
 from dataclasses import asdict
@@ -19,6 +20,8 @@ from nbcart.exporters.drawio import build_drawio_xml
 from nbcart.graph import build_device_graph, build_graph, list_racks
 from nbcart.ingest import normalize_color, parse_cables_csv
 from nbcart.models import CableRow
+from nbcart.reconcile import reconcile_links
+from nbcart.reconcile.collectors.ssh import SSH_VENDOR_PROFILES
 
 __all__ = [
     "app",
@@ -39,6 +42,8 @@ RESULT_DIR = DATA_DIR / "results"
 DB_PATH = DATA_DIR / "results.db"
 MIGRATIONS_DIR = BASE_DIR / "migrations"
 OPENAPI_PATH = BASE_DIR / "docs" / "openapi.yaml"
+_RECONCILE_RUNNING: set[int] = set()
+_RECONCILE_LOCK = threading.Lock()
 
 
 def list_migrations() -> list[Path]:
@@ -185,6 +190,13 @@ def get_import_run(import_id: int) -> dict[str, Any] | None:
     return dict(row) if row else None
 
 
+def get_reconcile_run(run_id: int) -> dict[str, Any] | None:
+    with sqlite3.connect(DB_PATH) as con:
+        con.row_factory = sqlite3.Row
+        row = con.execute("SELECT * FROM reconcile_runs WHERE id = ?", (run_id,)).fetchone()
+    return dict(row) if row else None
+
+
 def update_import_run(import_id: int, **fields: Any) -> None:
     if not fields:
         return
@@ -193,6 +205,17 @@ def update_import_run(import_id: int, **fields: Any) -> None:
     values.append(import_id)
     with sqlite3.connect(DB_PATH) as con:
         con.execute(f"UPDATE import_runs SET {columns} WHERE id = ?", values)
+        con.commit()
+
+
+def update_reconcile_run(run_id: int, **fields: Any) -> None:
+    if not fields:
+        return
+    columns = ", ".join(f"{k} = ?" for k in fields)
+    values = [fields[k] for k in fields]
+    values.append(run_id)
+    with sqlite3.connect(DB_PATH) as con:
+        con.execute(f"UPDATE reconcile_runs SET {columns} WHERE id = ?", values)
         con.commit()
 
 
@@ -253,11 +276,161 @@ def create_import_run(
     return import_id, suggested, missing, headers
 
 
+def create_reconcile_run(
+    *,
+    import_id: int,
+    method: str,
+    seed_device: str,
+    params: dict[str, object],
+) -> int:
+    created_at = dt.datetime.now().isoformat(timespec="seconds")
+    with sqlite3.connect(DB_PATH) as con:
+        cur = con.execute(
+            """
+            INSERT INTO reconcile_runs (
+                created_at, import_id, status, method, seed_device,
+                params_json, report_json, error_message
+            ) VALUES (?, ?, ?, ?, ?, ?, NULL, NULL)
+            """,
+            (
+                created_at,
+                import_id,
+                "created",
+                method,
+                seed_device,
+                json.dumps(params, ensure_ascii=False),
+            ),
+        )
+        con.commit()
+        row_id = cur.lastrowid
+        if row_id is None:
+            raise RuntimeError("Failed to persist reconcile_runs row.")
+        return int(row_id)
+
+
 def get_run_headers(run: dict[str, Any]) -> list[str]:
     upload_path = resolve_data_path(run["upload_path"])
     if not upload_path.exists():
         return []
     return read_headers(upload_path.read_bytes())
+
+
+def redact_sensitive_params(params: dict[str, Any]) -> dict[str, Any]:
+    sensitive_keys = {
+        "community",
+        "password",
+        "passphrase",
+        "auth_password",
+        "priv_password",
+        "token",
+    }
+    redacted: dict[str, Any] = {}
+    for key, value in params.items():
+        if key.lower() in sensitive_keys:
+            redacted[key] = "***"
+        else:
+            redacted[key] = value
+    return redacted
+
+
+def validate_reconcile_params(method: str, params: dict[str, Any]) -> str | None:
+    if method == "payload":
+        neighbors = params.get("neighbors")
+        if not isinstance(neighbors, list):
+            return "payload method requires params.neighbors as a list."
+        return None
+    if method == "snmp":
+        has_host = bool(str(params.get("host", "")).strip())
+        has_community = bool(str(params.get("community", "")).strip())
+        has_community_env = bool(str(params.get("community_env", "")).strip())
+        if not has_host:
+            return "SNMP requires params.host."
+        if not has_community and not has_community_env:
+            return "SNMP requires params.community or params.community_env."
+        return None
+    if method == "ssh":
+        has_neighbors = isinstance(params.get("neighbors"), list)
+        has_host = bool(str(params.get("host", "")).strip())
+        has_username = bool(str(params.get("username", "")).strip())
+        has_command = bool(str(params.get("command", "")).strip())
+        has_vendor = bool(str(params.get("vendor", "")).strip())
+        if has_neighbors:
+            return None
+        if not has_host:
+            return "SSH requires params.host unless params.neighbors is provided."
+        if not has_username:
+            return "SSH requires params.username unless params.neighbors is provided."
+        if not has_command and not has_vendor:
+            return (
+                "SSH requires params.command or params.vendor unless params.neighbors is provided."
+            )
+        return None
+    return None
+
+
+def execute_reconcile_run(run_id: int) -> dict[str, Any]:
+    run = get_reconcile_run(run_id)
+    if not run:
+        raise ValueError("Reconcile run not found")
+
+    import_run = get_import_run(int(run["import_id"]))
+    if not import_run:
+        update_reconcile_run(run_id, status="failed", error_message="Import not found")
+        raise ValueError("Import not found")
+    if import_run.get("status") != "completed" or not import_run.get("result_id"):
+        update_reconcile_run(
+            run_id, status="failed", error_message="Import must be completed before reconcile."
+        )
+        raise ValueError("Import must be completed before reconcile.")
+
+    result = get_result(int(import_run["result_id"]))
+    if not result:
+        update_reconcile_run(run_id, status="failed", error_message="Result not found")
+        raise ValueError("Result not found")
+
+    rows_path = resolve_data_path(result["rows_path"])
+    if not rows_path.exists():
+        update_reconcile_run(run_id, status="failed", error_message="Rows file missing")
+        raise FileNotFoundError("Rows file missing")
+    rows = [CableRow(**item) for item in json.loads(rows_path.read_text(encoding="utf-8"))]
+    params = json.loads(run.get("params_json") or "{}")
+    report = reconcile_links(
+        rows=rows,
+        method=run["method"],
+        seed_device=run["seed_device"],
+        params=params,
+    )
+    report_json = report.to_dict()
+    update_reconcile_run(
+        run_id, status="completed", report_json=json.dumps(report_json, ensure_ascii=False)
+    )
+    return report_json
+
+
+def _run_reconcile_in_background(run_id: int) -> None:
+    try:
+        execute_reconcile_run(run_id)
+    except Exception as exc:
+        update_reconcile_run(run_id, status="failed", error_message=str(exc))
+    finally:
+        with _RECONCILE_LOCK:
+            _RECONCILE_RUNNING.discard(run_id)
+
+
+def start_reconcile_async(run_id: int) -> bool:
+    with _RECONCILE_LOCK:
+        if run_id in _RECONCILE_RUNNING:
+            return False
+        _RECONCILE_RUNNING.add(run_id)
+    update_reconcile_run(run_id, status="running", error_message=None)
+    worker = threading.Thread(
+        target=_run_reconcile_in_background,
+        args=(run_id,),
+        name=f"reconcile-run-{run_id}",
+        daemon=True,
+    )
+    worker.start()
+    return True
 
 
 def build_summary(rows: list[CableRow], columns: dict[str, str | None]) -> dict[str, Any]:
@@ -694,6 +867,173 @@ def create_app() -> Flask:
         if fmt == "json":
             return download_file(result_id, "graph")
         return jsonify({"error": "Unsupported format."}), 400
+
+    @flask_app.post("/api/reconcile-runs")
+    def api_create_reconcile_run():
+        payload = request.get_json(silent=True) or {}
+        import_id = payload.get("import_id")
+        method = str(payload.get("method", "payload")).strip().lower()
+        seed_device = str(payload.get("seed_device", "")).strip()
+        params = payload.get("params", {})
+
+        if not isinstance(import_id, int):
+            return jsonify({"error": "import_id (int) is required."}), 400
+        if method not in {"payload", "snmp", "ssh"}:
+            return jsonify({"error": "method must be one of: payload, snmp, ssh."}), 400
+        if not isinstance(params, dict):
+            return jsonify({"error": "params object is required."}), 400
+        if method in {"snmp", "ssh"} and not seed_device:
+            return jsonify({"error": "seed_device is required for snmp/ssh."}), 400
+        validation_error = validate_reconcile_params(method, params)
+        if validation_error:
+            return jsonify({"error": validation_error}), 400
+
+        import_run = get_import_run(import_id)
+        if not import_run:
+            return jsonify({"error": "Import not found."}), 404
+        if import_run["status"] != "completed" or not import_run.get("result_id"):
+            return jsonify({"error": "Import is not completed."}), 409
+
+        run_id = create_reconcile_run(
+            import_id=import_id,
+            method=method,
+            seed_device=seed_device,
+            params=params,
+        )
+        return (
+            jsonify(
+                {
+                    "reconcile_run_id": run_id,
+                    "import_id": import_id,
+                    "status": "created",
+                    "method": method,
+                    "seed_device": seed_device,
+                }
+            ),
+            201,
+        )
+
+    @flask_app.post("/api/reconcile-runs/<int:run_id>/execute")
+    def api_execute_reconcile_run(run_id: int):
+        run = get_reconcile_run(run_id)
+        if not run:
+            return jsonify({"error": "Reconcile run not found."}), 404
+        async_mode = request.args.get("async", "false").strip().lower() in {
+            "1",
+            "true",
+            "yes",
+            "on",
+        }
+
+        if run["status"] == "completed" and run.get("report_json"):
+            return jsonify(
+                {
+                    "reconcile_run_id": run_id,
+                    "status": "completed",
+                    "report": json.loads(run["report_json"]),
+                }
+            )
+        if run["status"] == "running":
+            return jsonify({"reconcile_run_id": run_id, "status": "running"}), 202
+
+        if async_mode:
+            started = start_reconcile_async(run_id)
+            status = "running" if started else "running"
+            return jsonify({"reconcile_run_id": run_id, "status": status}), 202
+
+        try:
+            report = execute_reconcile_run(run_id)
+            return jsonify(
+                {
+                    "reconcile_run_id": run_id,
+                    "status": "completed",
+                    "report": report,
+                }
+            )
+        except NotImplementedError as exc:
+            update_reconcile_run(run_id, status="failed", error_message=str(exc))
+            return jsonify({"error": str(exc)}), 501
+        except Exception as exc:
+            update_reconcile_run(run_id, status="failed", error_message=str(exc))
+            return jsonify({"error": str(exc)}), 422
+
+    @flask_app.get("/api/reconcile-runs/<int:run_id>")
+    def api_get_reconcile_run(run_id: int):
+        run = get_reconcile_run(run_id)
+        if not run:
+            return jsonify({"error": "Reconcile run not found."}), 404
+        params = json.loads(run["params_json"] or "{}")
+        return jsonify(
+            {
+                "reconcile_run_id": run_id,
+                "import_id": run["import_id"],
+                "created_at": run["created_at"],
+                "status": run["status"],
+                "method": run["method"],
+                "seed_device": run["seed_device"],
+                "params": redact_sensitive_params(params),
+                "report": json.loads(run["report_json"]) if run.get("report_json") else None,
+                "error": run.get("error_message"),
+            }
+        )
+
+    @flask_app.post("/api/reconcile/compare")
+    def api_compare_reconcile():
+        payload = request.get_json(silent=True) or {}
+        import_id = payload.get("import_id")
+        method = str(payload.get("method", "payload")).strip().lower()
+        seed_device = str(payload.get("seed_device", "")).strip()
+        params = payload.get("params", {})
+
+        if not isinstance(import_id, int):
+            return jsonify({"error": "import_id (int) is required."}), 400
+        if method not in {"payload", "snmp", "ssh"}:
+            return jsonify({"error": "method must be one of: payload, snmp, ssh."}), 400
+        if not isinstance(params, dict):
+            return jsonify({"error": "params object is required."}), 400
+        if method in {"snmp", "ssh"} and not seed_device:
+            return jsonify({"error": "seed_device is required for snmp/ssh."}), 400
+        validation_error = validate_reconcile_params(method, params)
+        if validation_error:
+            return jsonify({"error": validation_error}), 400
+
+        import_run = get_import_run(import_id)
+        if not import_run:
+            return jsonify({"error": "Import not found."}), 404
+        if import_run["status"] != "completed" or not import_run.get("result_id"):
+            return jsonify({"error": "Import is not completed."}), 409
+        result = get_result(int(import_run["result_id"]))
+        if not result:
+            return jsonify({"error": "Result not found."}), 404
+
+        rows_path = resolve_data_path(result["rows_path"])
+        if not rows_path.exists():
+            return jsonify({"error": "Rows file missing."}), 404
+        rows = [CableRow(**item) for item in json.loads(rows_path.read_text(encoding="utf-8"))]
+
+        try:
+            report = reconcile_links(
+                rows=rows,
+                method=method,
+                seed_device=seed_device,
+                params=params,
+            )
+            return jsonify({"import_id": import_id, "report": report.to_dict()})
+        except NotImplementedError as exc:
+            return jsonify({"error": str(exc)}), 501
+        except Exception as exc:
+            return jsonify({"error": str(exc)}), 422
+
+    @flask_app.get("/api/reconcile/ssh-vendors")
+    def api_get_reconcile_ssh_vendors():
+        return jsonify(
+            {
+                "vendors": [
+                    {"name": name, "default_command": profile["command"]}
+                    for name, profile in sorted(SSH_VENDOR_PROFILES.items())
+                ]
+            }
+        )
 
     @flask_app.get("/api/openapi.yaml")
     def api_openapi():

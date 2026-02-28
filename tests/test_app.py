@@ -1,5 +1,6 @@
 import io
 import tempfile
+import time
 import unittest
 from pathlib import Path
 
@@ -46,9 +47,9 @@ class AppLogicTests(unittest.TestCase):
         self.assertEqual(rows[0].rack_b, "R2")
 
     def test_parse_cables_csv_infers_device_from_termination_text(self):
-        csv_bytes = (
-            "Termination A,Termination B,Type\n" "fw1:ge-0/0/0,sw1:xe-0/0/1,Fiber\n"
-        ).encode("utf-8")
+        csv_bytes = ("Termination A,Termination B,Type\nfw1:ge-0/0/0,sw1:xe-0/0/1,Fiber\n").encode(
+            "utf-8"
+        )
 
         rows, _ = parse_cables_csv(csv_bytes)
 
@@ -116,7 +117,7 @@ class AppLogicTests(unittest.TestCase):
         self.assertEqual(rows[0].cable_label, "Cable-1")
 
     def test_parse_cables_csv_returns_empty_when_required_columns_missing(self):
-        csv_bytes = ("foo,bar\n" "1,2\n").encode("utf-8")
+        csv_bytes = ("foo,bar\n1,2\n").encode("utf-8")
 
         rows, columns = parse_cables_csv(csv_bytes)
 
@@ -494,6 +495,371 @@ class UploadSecurityTests(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         text = response.get_data(as_text=True)
         self.assertIn("openapi: 3.1.0", text)
+
+    def test_api_reconcile_payload_detects_missing_and_unexpected_links(self):
+        csv_bytes = (
+            "Termination A Device,Termination A Name,Termination B Device,Termination B Name,Type\n"
+            "sw1,xe-0/0/1,sw2,xe-0/0/2,Cat6\n"
+        ).encode("utf-8")
+        create_resp = self.client.post(
+            "/api/imports",
+            data={"csv_file": (io.BytesIO(csv_bytes), "api-reconcile.csv")},
+            content_type="multipart/form-data",
+        )
+        body = create_resp.get_json()
+        self.assertIsNotNone(body)
+        assert body is not None
+        import_id = body["import_id"]
+        self.client.put(
+            f"/api/imports/{import_id}/mapping",
+            json={"mapping": body["mapping_candidates"]},
+        )
+        self.client.post(f"/api/imports/{import_id}/execute")
+
+        create_run_resp = self.client.post(
+            "/api/reconcile-runs",
+            json={
+                "import_id": import_id,
+                "method": "payload",
+                "params": {
+                    "neighbors": [
+                        {
+                            "local_device": "sw1",
+                            "local_interface": "xe-0/0/1",
+                            "remote_device": "sw3",
+                            "remote_interface": "xe-0/0/2",
+                        }
+                    ]
+                },
+            },
+        )
+        self.assertEqual(create_run_resp.status_code, 201)
+        create_run_body = create_run_resp.get_json()
+        self.assertIsNotNone(create_run_body)
+        assert create_run_body is not None
+        run_id = create_run_body["reconcile_run_id"]
+
+        execute_resp = self.client.post(f"/api/reconcile-runs/{run_id}/execute")
+        self.assertEqual(execute_resp.status_code, 200)
+        execute_body = execute_resp.get_json()
+        self.assertIsNotNone(execute_body)
+        assert execute_body is not None
+        summary = execute_body["report"]["summary"]
+        self.assertEqual(summary["expected_count"], 1)
+        self.assertEqual(summary["observed_count"], 1)
+        self.assertEqual(summary["matched_count"], 0)
+        self.assertEqual(summary["missing_count"], 1)
+        self.assertEqual(summary["unexpected_count"], 1)
+
+    def test_api_reconcile_rejects_incomplete_import(self):
+        csv_bytes = (
+            "Termination A Device,Termination A Name,Termination B Device,Termination B Name,Type\n"
+            "sw1,xe-0/0/1,sw2,xe-0/0/2,Cat6\n"
+        ).encode("utf-8")
+        create_resp = self.client.post(
+            "/api/imports",
+            data={"csv_file": (io.BytesIO(csv_bytes), "api-reconcile-state.csv")},
+            content_type="multipart/form-data",
+        )
+        body = create_resp.get_json()
+        self.assertIsNotNone(body)
+        assert body is not None
+        import_id = body["import_id"]
+
+        response = self.client.post(
+            "/api/reconcile-runs",
+            json={"import_id": import_id, "method": "payload", "params": {"neighbors": []}},
+        )
+        self.assertEqual(response.status_code, 409)
+
+    def test_api_reconcile_snmp_requires_host_param(self):
+        csv_bytes = (
+            "Termination A Device,Termination A Name,Termination B Device,Termination B Name,Type\n"
+            "sw1,xe-0/0/1,sw2,xe-0/0/2,Cat6\n"
+        ).encode("utf-8")
+        create_resp = self.client.post(
+            "/api/imports",
+            data={"csv_file": (io.BytesIO(csv_bytes), "api-reconcile-snmp.csv")},
+            content_type="multipart/form-data",
+        )
+        body = create_resp.get_json()
+        self.assertIsNotNone(body)
+        assert body is not None
+        import_id = body["import_id"]
+        self.client.put(
+            f"/api/imports/{import_id}/mapping",
+            json={"mapping": body["mapping_candidates"]},
+        )
+        self.client.post(f"/api/imports/{import_id}/execute")
+
+        create_run_resp = self.client.post(
+            "/api/reconcile-runs",
+            json={
+                "import_id": import_id,
+                "method": "snmp",
+                "seed_device": "sw1",
+                "params": {"community": "public"},
+            },
+        )
+        self.assertEqual(create_run_resp.status_code, 400)
+
+    def test_api_reconcile_payload_requires_neighbors_list(self):
+        csv_bytes = (
+            "Termination A Device,Termination A Name,Termination B Device,Termination B Name,Type\n"
+            "sw1,xe-0/0/1,sw2,xe-0/0/2,Cat6\n"
+        ).encode("utf-8")
+        create_resp = self.client.post(
+            "/api/imports",
+            data={"csv_file": (io.BytesIO(csv_bytes), "api-reconcile-payload-check.csv")},
+            content_type="multipart/form-data",
+        )
+        body = create_resp.get_json()
+        self.assertIsNotNone(body)
+        assert body is not None
+        import_id = body["import_id"]
+        self.client.put(
+            f"/api/imports/{import_id}/mapping",
+            json={"mapping": body["mapping_candidates"]},
+        )
+        self.client.post(f"/api/imports/{import_id}/execute")
+
+        response = self.client.post(
+            "/api/reconcile-runs",
+            json={
+                "import_id": import_id,
+                "method": "payload",
+                "params": {"neighbors": "not-list"},
+            },
+        )
+        self.assertEqual(response.status_code, 400)
+
+    def test_api_reconcile_get_run_redacts_sensitive_params(self):
+        csv_bytes = (
+            "Termination A Device,Termination A Name,Termination B Device,Termination B Name,Type\n"
+            "sw1,xe-0/0/1,sw2,xe-0/0/2,Cat6\n"
+        ).encode("utf-8")
+        create_resp = self.client.post(
+            "/api/imports",
+            data={"csv_file": (io.BytesIO(csv_bytes), "api-reconcile-redact.csv")},
+            content_type="multipart/form-data",
+        )
+        body = create_resp.get_json()
+        self.assertIsNotNone(body)
+        assert body is not None
+        import_id = body["import_id"]
+        self.client.put(
+            f"/api/imports/{import_id}/mapping",
+            json={"mapping": body["mapping_candidates"]},
+        )
+        self.client.post(f"/api/imports/{import_id}/execute")
+
+        create_run_resp = self.client.post(
+            "/api/reconcile-runs",
+            json={
+                "import_id": import_id,
+                "method": "snmp",
+                "seed_device": "sw1",
+                "params": {"host": "192.0.2.10", "community": "public"},
+            },
+        )
+        self.assertEqual(create_run_resp.status_code, 201)
+        create_run_body = create_run_resp.get_json()
+        self.assertIsNotNone(create_run_body)
+        assert create_run_body is not None
+        run_id = create_run_body["reconcile_run_id"]
+
+        get_resp = self.client.get(f"/api/reconcile-runs/{run_id}")
+        self.assertEqual(get_resp.status_code, 200)
+        get_body = get_resp.get_json()
+        self.assertIsNotNone(get_body)
+        assert get_body is not None
+        self.assertEqual(get_body["params"]["community"], "***")
+
+    def test_api_reconcile_compare_runs_without_persisting_run(self):
+        csv_bytes = (
+            "Termination A Device,Termination A Name,Termination B Device,Termination B Name,Type\n"
+            "sw1,xe-0/0/1,sw2,xe-0/0/2,Cat6\n"
+        ).encode("utf-8")
+        create_resp = self.client.post(
+            "/api/imports",
+            data={"csv_file": (io.BytesIO(csv_bytes), "api-reconcile-compare.csv")},
+            content_type="multipart/form-data",
+        )
+        body = create_resp.get_json()
+        self.assertIsNotNone(body)
+        assert body is not None
+        import_id = body["import_id"]
+        self.client.put(
+            f"/api/imports/{import_id}/mapping",
+            json={"mapping": body["mapping_candidates"]},
+        )
+        self.client.post(f"/api/imports/{import_id}/execute")
+
+        compare_resp = self.client.post(
+            "/api/reconcile/compare",
+            json={
+                "import_id": import_id,
+                "method": "payload",
+                "params": {
+                    "neighbors": [
+                        {
+                            "local_device": "sw1",
+                            "local_interface": "xe-0/0/1",
+                            "remote_device": "sw2",
+                            "remote_interface": "xe-0/0/2",
+                        }
+                    ]
+                },
+            },
+        )
+        self.assertEqual(compare_resp.status_code, 200)
+        compare_body = compare_resp.get_json()
+        self.assertIsNotNone(compare_body)
+        assert compare_body is not None
+        summary = compare_body["report"]["summary"]
+        self.assertEqual(summary["expected_count"], 1)
+        self.assertEqual(summary["observed_count"], 1)
+        self.assertEqual(summary["matched_count"], 1)
+        self.assertEqual(summary["missing_count"], 0)
+        self.assertEqual(summary["unexpected_count"], 0)
+
+    def test_api_reconcile_compare_supports_ssh_neighbors_param(self):
+        csv_bytes = (
+            "Termination A Device,Termination A Name,Termination B Device,Termination B Name,Type\n"
+            "sw1,xe-0/0/1,sw2,xe-0/0/2,Cat6\n"
+        ).encode("utf-8")
+        create_resp = self.client.post(
+            "/api/imports",
+            data={"csv_file": (io.BytesIO(csv_bytes), "api-reconcile-compare-ssh.csv")},
+            content_type="multipart/form-data",
+        )
+        body = create_resp.get_json()
+        self.assertIsNotNone(body)
+        assert body is not None
+        import_id = body["import_id"]
+        self.client.put(
+            f"/api/imports/{import_id}/mapping",
+            json={"mapping": body["mapping_candidates"]},
+        )
+        self.client.post(f"/api/imports/{import_id}/execute")
+
+        compare_resp = self.client.post(
+            "/api/reconcile/compare",
+            json={
+                "import_id": import_id,
+                "method": "ssh",
+                "seed_device": "sw1",
+                "params": {
+                    "neighbors": [
+                        {
+                            "local_interface": "xe-0/0/1",
+                            "remote_device": "sw2",
+                            "remote_interface": "xe-0/0/2",
+                        }
+                    ]
+                },
+            },
+        )
+        self.assertEqual(compare_resp.status_code, 200)
+
+    def test_api_reconcile_compare_rejects_ssh_without_command_or_vendor(self):
+        csv_bytes = (
+            "Termination A Device,Termination A Name,Termination B Device,Termination B Name,Type\n"
+            "sw1,xe-0/0/1,sw2,xe-0/0/2,Cat6\n"
+        ).encode("utf-8")
+        create_resp = self.client.post(
+            "/api/imports",
+            data={"csv_file": (io.BytesIO(csv_bytes), "api-reconcile-compare-ssh-validate.csv")},
+            content_type="multipart/form-data",
+        )
+        body = create_resp.get_json()
+        self.assertIsNotNone(body)
+        assert body is not None
+        import_id = body["import_id"]
+        self.client.put(
+            f"/api/imports/{import_id}/mapping",
+            json={"mapping": body["mapping_candidates"]},
+        )
+        self.client.post(f"/api/imports/{import_id}/execute")
+
+        compare_resp = self.client.post(
+            "/api/reconcile/compare",
+            json={
+                "import_id": import_id,
+                "method": "ssh",
+                "seed_device": "sw1",
+                "params": {"host": "192.0.2.20", "username": "netops"},
+            },
+        )
+        self.assertEqual(compare_resp.status_code, 400)
+
+    def test_api_reconcile_execute_async_completes_in_background(self):
+        csv_bytes = (
+            "Termination A Device,Termination A Name,Termination B Device,Termination B Name,Type\n"
+            "sw1,xe-0/0/1,sw2,xe-0/0/2,Cat6\n"
+        ).encode("utf-8")
+        create_resp = self.client.post(
+            "/api/imports",
+            data={"csv_file": (io.BytesIO(csv_bytes), "api-reconcile-async.csv")},
+            content_type="multipart/form-data",
+        )
+        body = create_resp.get_json()
+        self.assertIsNotNone(body)
+        assert body is not None
+        import_id = body["import_id"]
+        self.client.put(
+            f"/api/imports/{import_id}/mapping",
+            json={"mapping": body["mapping_candidates"]},
+        )
+        self.client.post(f"/api/imports/{import_id}/execute")
+        create_run_resp = self.client.post(
+            "/api/reconcile-runs",
+            json={
+                "import_id": import_id,
+                "method": "payload",
+                "params": {
+                    "neighbors": [
+                        {
+                            "local_device": "sw1",
+                            "local_interface": "xe-0/0/1",
+                            "remote_device": "sw2",
+                            "remote_interface": "xe-0/0/2",
+                        }
+                    ]
+                },
+            },
+        )
+        run_body = create_run_resp.get_json()
+        self.assertIsNotNone(run_body)
+        assert run_body is not None
+        run_id = run_body["reconcile_run_id"]
+
+        execute_resp = self.client.post(f"/api/reconcile-runs/{run_id}/execute?async=true")
+        self.assertEqual(execute_resp.status_code, 202)
+
+        completed = False
+        for _ in range(20):
+            get_resp = self.client.get(f"/api/reconcile-runs/{run_id}")
+            get_body = get_resp.get_json()
+            self.assertIsNotNone(get_body)
+            assert get_body is not None
+            if get_body["status"] == "completed":
+                completed = True
+                summary = get_body["report"]["summary"]
+                self.assertEqual(summary["matched_count"], 1)
+                break
+            time.sleep(0.02)
+        self.assertTrue(completed)
+
+    def test_api_reconcile_ssh_vendors_lists_profiles(self):
+        resp = self.client.get("/api/reconcile/ssh-vendors")
+        self.assertEqual(resp.status_code, 200)
+        body = resp.get_json()
+        self.assertIsNotNone(body)
+        assert body is not None
+        vendors = body["vendors"]
+        self.assertTrue(any(v["name"] == "cisco_ios" for v in vendors))
+        self.assertTrue(any(v["name"] == "juniper_junos" for v in vendors))
 
 
 if __name__ == "__main__":

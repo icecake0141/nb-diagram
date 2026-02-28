@@ -33,6 +33,31 @@
           <button id="apiRefreshBtn" type="button">Refresh</button>
           <a id="apiOpenResult" href="#" hidden>Open Result</a>
         </div>
+        <section class="reconcile-panel">
+          <h3>SSH Reconcile</h3>
+          <p class="mode-note">Compare NetBox topology and live LLDP via SSH vendor profile.</p>
+          <div class="reconcile-grid">
+            <label for="reconcileSeedDevice">Seed Device</label>
+            <input id="reconcileSeedDevice" type="text" placeholder="sw1" />
+            <label for="reconcileSshHost">SSH Host</label>
+            <input id="reconcileSshHost" type="text" placeholder="192.0.2.20" />
+            <label for="reconcileSshUsername">SSH Username</label>
+            <input id="reconcileSshUsername" type="text" placeholder="netops" />
+            <label for="reconcileSshVendor">SSH Vendor Profile</label>
+            <select id="reconcileSshVendor">
+              <option value="">-- Select Vendor --</option>
+            </select>
+            <label for="reconcileSshCommand">SSH Command (optional override)</label>
+            <input id="reconcileSshCommand" type="text" placeholder="show lldp neighbors detail" />
+            <label for="reconcileSshTimeout">Timeout(sec)</label>
+            <input id="reconcileSshTimeout" type="number" min="1" step="1" value="10" />
+          </div>
+          <div class="api-actions">
+            <button id="reconcileCompareBtn" type="button">Run SSH Reconcile</button>
+          </div>
+          <p id="reconcileStatus" class="mode-note"></p>
+          <pre id="reconcileSummary" class="reconcile-summary" hidden></pre>
+        </section>
       </div>
     </details>
 

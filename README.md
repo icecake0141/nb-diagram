@@ -98,6 +98,47 @@ curl "http://127.0.0.1:8000/api/graphs/1?view=device"
 curl -L "http://127.0.0.1:8000/api/exports/1?format=drawio" -o result.drawio
 ```
 
+### Reconcile API Example
+
+```bash
+# One-shot compare (does not persist reconcile run)
+curl -X POST -H "Content-Type: application/json" \
+  -d '{
+    "import_id": 1,
+    "method": "payload",
+    "params": {
+      "neighbors": [
+        {"local_device": "sw1", "local_interface": "xe-0/0/1", "remote_device": "sw2", "remote_interface": "xe-0/0/2"}
+      ]
+    }
+  }' \
+  http://127.0.0.1:8000/api/reconcile/compare
+
+# Persisted run with SNMP (recommended: use environment reference)
+curl -X POST -H "Content-Type: application/json" \
+  -d '{
+    "import_id": 1,
+    "method": "snmp",
+    "seed_device": "sw1",
+    "params": {"host": "192.0.2.10", "community_env": "SNMP_COMMUNITY"}
+  }' \
+  http://127.0.0.1:8000/api/reconcile-runs
+
+# Persisted run with SSH vendor profile (command auto-selected)
+curl -X POST -H "Content-Type: application/json" \
+  -d '{
+    "import_id": 1,
+    "method": "ssh",
+    "seed_device": "sw1",
+    "params": {"host": "192.0.2.20", "username": "netops", "vendor": "cisco_ios"}
+  }' \
+  http://127.0.0.1:8000/api/reconcile-runs
+
+# Execute persisted run asynchronously and poll status
+curl -X POST "http://127.0.0.1:8000/api/reconcile-runs/1/execute?async=true"
+curl "http://127.0.0.1:8000/api/reconcile-runs/1"
+```
+
 ### Directory Structure
 
 ```text
@@ -233,6 +274,16 @@ If major columns are missing, the UI shows the undetected column list.
   - Download export artifacts from completed imports.
 - `POST /api/results/<id>/drawio-layout`
   - Download drawio generated from current node positions sent by the UI.
+- `POST /api/reconcile-runs`
+  - Create a reconcile run using completed import data plus observed LLDP source.
+- `POST /api/reconcile-runs/<id>/execute`
+  - Execute topology reconciliation (`payload`, `snmp`, and `ssh` methods are available).
+- `GET /api/reconcile-runs/<id>`
+  - Check reconcile status and diff report (`missing/unexpected/mismatched`).
+- `POST /api/reconcile/compare`
+  - Run one-shot reconcile without persisting a reconcile run (useful for secret-safe checks).
+- `GET /api/reconcile/ssh-vendors`
+  - List supported SSH vendor profiles and default commands.
 - `GET /api/openapi.yaml`
   - Download the pinned OpenAPI contract.
 
@@ -266,6 +317,11 @@ Fallback runtime target: `static/`
 - Backend: Flask 3.1
 - Frontend rendering: Cytoscape.js / elkjs
 - To add more column-name rules, update `choose_columns()` in `app.py`.
+
+### Reconcile TODO
+
+- Validate SSH reconcile behavior on actual devices per vendor profile.
+- Split and tighten vendor-specific SSH output parsers where false positives are observed.
 
 ---
 
@@ -446,6 +502,16 @@ ruff check . --fix
   - 完了済み import のエクスポートを取得
 - `POST /api/results/<id>/drawio-layout`
   - UI から送信した現在ノード座標で drawio を生成して取得
+- `POST /api/reconcile-runs`
+  - 完了済み import データと観測 LLDP データを使って比較 run を作成
+- `POST /api/reconcile-runs/<id>/execute`
+  - トポロジー比較を実行（`payload`/`snmp`/`ssh` を利用可能）
+- `GET /api/reconcile-runs/<id>`
+  - 比較状態と差分レポート（`missing/unexpected/mismatched`）を取得
+- `POST /api/reconcile/compare`
+  - 比較 run を保存せずにワンショット比較を実行（機密情報を残したくない用途向け）
+- `GET /api/reconcile/ssh-vendors`
+  - 対応済み SSH ベンダプロファイルと既定コマンドを取得
 - `GET /api/openapi.yaml`
   - OpenAPI 契約を取得
 
@@ -479,3 +545,8 @@ npm run frontend:build
 - バックエンド: Flask 3.1
 - フロント描画: Cytoscape.js / elkjs
 - 列名ルールを増やす場合は `app.py` の `choose_columns()` を更新してください
+
+### Reconcile ToDo
+
+- ベンダプロファイルごとに実機で SSH 比較動作を検証する
+- 誤検知が出る場合は、ベンダ別 SSH 出力パーサをさらに分離・厳密化する
