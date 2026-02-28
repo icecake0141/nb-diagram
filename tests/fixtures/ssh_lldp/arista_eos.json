@@ -1,0 +1,14 @@
+{
+  "lldpNeighbors": [
+    {
+      "port": "Ethernet1",
+      "neighborDevice": "leaf-01",
+      "neighborPort": "Ethernet2"
+    },
+    {
+      "port": "Ethernet3",
+      "neighborDevice": "leaf-02",
+      "neighborPort": "Ethernet4"
+    }
+  ]
+}

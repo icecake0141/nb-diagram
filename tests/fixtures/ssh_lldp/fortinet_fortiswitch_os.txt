@@ -1,0 +1,7 @@
+Local Interface: port1
+System Name: leaf-01
+Remote Interface: port2
+----
+Local Interface: port3
+System Name: leaf-02
+Remote Interface: port4

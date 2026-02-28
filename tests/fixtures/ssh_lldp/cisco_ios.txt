@@ -1,0 +1,7 @@
+Local Intf: Ethernet1/1
+System Name: leaf-01
+Port id: Ethernet2/1
+----------
+Local Intf: Ethernet1/2
+System Name: leaf-02
+Port id: Ethernet2/2

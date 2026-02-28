@@ -1,0 +1,2 @@
+xe-0/0/1 | leaf-01 | Ethernet1/1
+xe-0/0/2 | leaf-02 | Ethernet1/2

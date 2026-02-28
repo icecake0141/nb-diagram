@@ -1,0 +1,16 @@
+{
+  "TABLE_nbor": {
+    "ROW_nbor": [
+      {
+        "l_port_id": "Ethernet1/1",
+        "sys_name": "leaf-01",
+        "port_id": "Ethernet2/1"
+      },
+      {
+        "l_port_id": "Ethernet1/2",
+        "sys_name": "leaf-02",
+        "port_id": "Ethernet2/2"
+      }
+    ]
+  }
+}
