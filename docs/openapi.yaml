@@ -233,7 +233,7 @@ paths:
           description: Run in background and return immediately with running status.
       responses:
         '200':
-          description: Reconcile completed
+          description: Reconcile completed (report includes collection diagnostics)
         '202':
           description: Reconcile accepted/running
         '404':
@@ -271,7 +271,7 @@ paths:
                     ssh vendor: arista_eos | cisco_ios | cisco_nxos | juniper_junos | fortinet_fortiswitch_os
       responses:
         '200':
-          description: Reconcile report
+          description: Reconcile report (includes collection diagnostics such as parser path)
         '400':
           description: Invalid request payload
         '404':

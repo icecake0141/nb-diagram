@@ -14,6 +14,9 @@ IF_NAME_OID = ".1.3.6.1.2.1.31.1.1.1.1"
 
 
 class SnmpLldpCollector:
+    def __init__(self) -> None:
+        self.last_metadata: dict[str, object] = {}
+
     @staticmethod
     def _int_param(params: dict[str, object], key: str, default: int) -> int:
         value = params.get(key, default)
@@ -200,4 +203,11 @@ class SnmpLldpCollector:
                     remote_interface,
                 )
             )
+        self.last_metadata = {
+            "parser": "snmp_lldp_mib",
+            "host": host,
+            "remote_sys_entries": len(remote_sys_by_key),
+            "remote_port_entries": len(remote_port_by_key),
+            "local_port_entries": len(local_desc_by_port),
+        }
         return links

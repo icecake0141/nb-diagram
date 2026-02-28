@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, field
 
 
 @dataclass(frozen=True)
@@ -35,6 +35,7 @@ class ReconcileReport:
     missing: list[DiffRecord]
     unexpected: list[DiffRecord]
     mismatched: list[DiffRecord]
+    collection: dict[str, object] = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, object]:
         return {
@@ -49,4 +50,5 @@ class ReconcileReport:
             "missing": [item.to_dict() for item in self.missing],
             "unexpected": [item.to_dict() for item in self.unexpected],
             "mismatched": [item.to_dict() for item in self.mismatched],
+            "collection": self.collection,
         }

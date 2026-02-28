@@ -22,6 +22,9 @@ SSH_VENDOR_ALIASES = {
 
 
 class SshLldpCollector:
+    def __init__(self) -> None:
+        self.last_metadata: dict[str, object] = {}
+
     @staticmethod
     def _int_param(params: dict[str, object], key: str, default: int) -> int:
         value = params.get(key, default)
@@ -97,6 +100,11 @@ class SshLldpCollector:
 
         from_param = self._collect_from_neighbors_param(seed_device=seed_device, params=params)
         if from_param:
+            self.last_metadata = {
+                "parser": "neighbors_payload",
+                "vendor": "",
+                "parser_fallback_used": False,
+            }
             return from_param
 
         host = str(params.get("host", "")).strip()
@@ -139,9 +147,22 @@ class SshLldpCollector:
             raise ValueError(detail)
 
         parser = VENDOR_PARSERS.get(vendor) if vendor else None
-        links = parser(seed_device, proc.stdout) if parser else []
+        parser_name = ""
+        links = []
+        if parser:
+            parser_name = f"vendor::{vendor}"
+            links = parser(seed_device, proc.stdout)
+        fallback_used = False
         if not links:
             links = parse_generic(seed_device, proc.stdout)
+            fallback_used = bool(parser_name)
+            parser_name = "generic"
         if not links:
             raise ValueError("No LLDP neighbors parsed from ssh output.")
+        self.last_metadata = {
+            "parser": parser_name,
+            "vendor": vendor,
+            "command": command,
+            "parser_fallback_used": fallback_used,
+        }
         return links

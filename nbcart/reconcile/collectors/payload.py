@@ -7,6 +7,9 @@ from ..normalize import normalize_link
 class PayloadCollector:
     """Collector used for API-driven ingestion of observed LLDP neighbors."""
 
+    def __init__(self) -> None:
+        self.last_metadata: dict[str, object] = {}
+
     def collect(self, *, seed_device: str, params: dict[str, object]) -> list[LinkRecord]:
         _ = seed_device  # Seed device is unused for payload mode.
         raw_neighbors = params.get("neighbors")
@@ -31,4 +34,9 @@ class PayloadCollector:
                     remote_interface,
                 )
             )
+        self.last_metadata = {
+            "parser": "payload_direct",
+            "input_neighbors": len(raw_neighbors),
+            "valid_neighbors": len(links),
+        }
         return links

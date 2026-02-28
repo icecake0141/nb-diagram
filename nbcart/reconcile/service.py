@@ -29,11 +29,21 @@ def collect_observed_links(
     method: str,
     seed_device: str,
     params: dict[str, object],
-) -> list[LinkRecord]:
+) -> tuple[list[LinkRecord], dict[str, object]]:
     collector = COLLECTORS.get(method)
     if collector is None:
         raise ValueError(f"Unsupported method: {method}")
-    return collector.collect(seed_device=seed_device, params=params)
+    observed = collector.collect(seed_device=seed_device, params=params)
+    metadata = getattr(collector, "last_metadata", {})
+    if not isinstance(metadata, dict):
+        metadata = {}
+    details: dict[str, object] = {
+        "method": method,
+        "collector": collector.__class__.__name__,
+        "observed_links": len(observed),
+    }
+    details.update(metadata)
+    return observed, details
 
 
 def reconcile_links(
@@ -44,5 +54,11 @@ def reconcile_links(
     params: dict[str, object],
 ) -> ReconcileReport:
     expected = expected_links_from_rows(rows)
-    observed = collect_observed_links(method=method, seed_device=seed_device, params=params)
-    return reconcile(expected, observed)
+    observed, collection_meta = collect_observed_links(
+        method=method,
+        seed_device=seed_device,
+        params=params,
+    )
+    report = reconcile(expected, observed)
+    report.collection = collection_meta
+    return report

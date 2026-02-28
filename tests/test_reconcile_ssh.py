@@ -109,6 +109,7 @@ class SshCollectorTests(unittest.TestCase):
             params={"host": "192.0.2.20", "username": "netops", "vendor": "arista_eos"},
         )
         self.assertEqual(len(links), 1)
+        self.assertEqual(collector.last_metadata["parser"], "vendor::arista_eos")
         used_cmd = run_mock.call_args[0][0]
         self.assertEqual(used_cmd[-1], "show lldp neighbors detail | json")
 

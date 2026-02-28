@@ -722,6 +722,9 @@ class UploadSecurityTests(unittest.TestCase):
         self.assertEqual(summary["matched_count"], 1)
         self.assertEqual(summary["missing_count"], 0)
         self.assertEqual(summary["unexpected_count"], 0)
+        collection = compare_body["report"]["collection"]
+        self.assertEqual(collection["method"], "payload")
+        self.assertEqual(collection["parser"], "payload_direct")
 
     def test_api_reconcile_compare_supports_ssh_neighbors_param(self):
         csv_bytes = (
@@ -761,6 +764,10 @@ class UploadSecurityTests(unittest.TestCase):
             },
         )
         self.assertEqual(compare_resp.status_code, 200)
+        body = compare_resp.get_json()
+        self.assertIsNotNone(body)
+        assert body is not None
+        self.assertEqual(body["report"]["collection"]["parser"], "neighbors_payload")
 
     def test_api_reconcile_compare_rejects_ssh_without_command_or_vendor(self):
         csv_bytes = (
