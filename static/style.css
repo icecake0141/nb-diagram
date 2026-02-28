@@ -337,6 +337,64 @@ th, td {
   white-space: pre-wrap;
 }
 
+.reconcile-diagnostics {
+  margin: 8px 0 6px;
+  padding: 8px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  font-size: 12px;
+}
+
+.reconcile-diagnostics p {
+  margin: 0 0 4px;
+}
+
+.reconcile-filter-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-top: 8px;
+}
+
+.reconcile-filter-row input {
+  flex: 1;
+  min-width: 220px;
+  padding: 6px 8px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+}
+
+.reconcile-tabs {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+
+.reconcile-tabs button {
+  background: #fff;
+  color: #0f172a;
+  border: 1px solid var(--line);
+  padding: 7px 10px;
+}
+
+.reconcile-tabs button.active {
+  background: #0f766e;
+  color: #fff;
+}
+
+.reconcile-diff-table {
+  margin-top: 8px;
+}
+
+.reconcile-diff-table td {
+  vertical-align: top;
+  font-size: 12px;
+  line-height: 1.35;
+}
+
 @media (max-width: 768px) {
   .reconcile-grid {
     grid-template-columns: 1fr;

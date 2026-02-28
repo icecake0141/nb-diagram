@@ -54,8 +54,32 @@
           </div>
           <div class="api-actions">
             <button id="reconcileCompareBtn" type="button">Run SSH Reconcile</button>
+            <button id="reconcileExportJsonBtn" type="button">Export Current JSON</button>
+            <button id="reconcileExportCsvBtn" type="button">Export Current CSV</button>
           </div>
           <p id="reconcileStatus" class="mode-note"></p>
+          <div id="reconcileDiagnostics" class="reconcile-diagnostics" hidden></div>
+          <div class="reconcile-filter-row">
+            <label for="reconcileFilterInput">Filter</label>
+            <input id="reconcileFilterInput" type="text" placeholder="device / interface / key" />
+          </div>
+          <div class="reconcile-tabs">
+            <button id="reconcileTabMissing" type="button" data-tab="missing">Missing (0)</button>
+            <button id="reconcileTabUnexpected" type="button" data-tab="unexpected">Unexpected (0)</button>
+            <button id="reconcileTabMismatched" type="button" data-tab="mismatched">Mismatched (0)</button>
+          </div>
+          <div id="reconcileTabCaption" class="mode-note"></div>
+          <table id="reconcileDiffTable" class="reconcile-diff-table" hidden>
+            <thead>
+              <tr>
+                <th>Key</th>
+                <th>Reason</th>
+                <th>Expected</th>
+                <th>Observed</th>
+              </tr>
+            </thead>
+            <tbody id="reconcileDiffTableBody"></tbody>
+          </table>
           <pre id="reconcileSummary" class="reconcile-summary" hidden></pre>
         </section>
       </div>
