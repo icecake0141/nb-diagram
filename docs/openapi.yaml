@@ -223,9 +223,18 @@ paths:
           required: true
           schema:
             type: integer
+        - in: query
+          name: async
+          required: false
+          schema:
+            type: boolean
+            default: false
+          description: Run in background and return immediately with running status.
       responses:
         '200':
           description: Reconcile completed
+        '202':
+          description: Reconcile accepted/running
         '404':
           description: Reconcile run not found
         '422':

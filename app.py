@@ -5,6 +5,7 @@ import datetime as dt
 import io
 import json
 import sqlite3
+import threading
 import uuid
 from collections import Counter
 from dataclasses import asdict
@@ -40,6 +41,8 @@ RESULT_DIR = DATA_DIR / "results"
 DB_PATH = DATA_DIR / "results.db"
 MIGRATIONS_DIR = BASE_DIR / "migrations"
 OPENAPI_PATH = BASE_DIR / "docs" / "openapi.yaml"
+_RECONCILE_RUNNING: set[int] = set()
+_RECONCILE_LOCK = threading.Lock()
 
 
 def list_migrations() -> list[Path]:
@@ -398,6 +401,32 @@ def execute_reconcile_run(run_id: int) -> dict[str, Any]:
         run_id, status="completed", report_json=json.dumps(report_json, ensure_ascii=False)
     )
     return report_json
+
+
+def _run_reconcile_in_background(run_id: int) -> None:
+    try:
+        execute_reconcile_run(run_id)
+    except Exception as exc:
+        update_reconcile_run(run_id, status="failed", error_message=str(exc))
+    finally:
+        with _RECONCILE_LOCK:
+            _RECONCILE_RUNNING.discard(run_id)
+
+
+def start_reconcile_async(run_id: int) -> bool:
+    with _RECONCILE_LOCK:
+        if run_id in _RECONCILE_RUNNING:
+            return False
+        _RECONCILE_RUNNING.add(run_id)
+    update_reconcile_run(run_id, status="running", error_message=None)
+    worker = threading.Thread(
+        target=_run_reconcile_in_background,
+        args=(run_id,),
+        name=f"reconcile-run-{run_id}",
+        daemon=True,
+    )
+    worker.start()
+    return True
 
 
 def build_summary(rows: list[CableRow], columns: dict[str, str | None]) -> dict[str, Any]:
@@ -885,6 +914,12 @@ def create_app() -> Flask:
         run = get_reconcile_run(run_id)
         if not run:
             return jsonify({"error": "Reconcile run not found."}), 404
+        async_mode = request.args.get("async", "false").strip().lower() in {
+            "1",
+            "true",
+            "yes",
+            "on",
+        }
 
         if run["status"] == "completed" and run.get("report_json"):
             return jsonify(
@@ -894,6 +929,13 @@ def create_app() -> Flask:
                     "report": json.loads(run["report_json"]),
                 }
             )
+        if run["status"] == "running":
+            return jsonify({"reconcile_run_id": run_id, "status": "running"}), 202
+
+        if async_mode:
+            started = start_reconcile_async(run_id)
+            status = "running" if started else "running"
+            return jsonify({"reconcile_run_id": run_id, "status": status}), 202
 
         try:
             report = execute_reconcile_run(run_id)
