@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 import re
 import subprocess
 
@@ -12,6 +13,16 @@ LLDP_LOC_PORTDESC_OID = ".1.0.8802.1.1.2.1.3.7.1.4"
 
 
 class SnmpLldpCollector:
+    @staticmethod
+    def _resolve_community(params: dict[str, object]) -> str:
+        direct = str(params.get("community", "")).strip()
+        if direct:
+            return direct
+        env_name = str(params.get("community_env", "")).strip()
+        if env_name:
+            return os.environ.get(env_name, "").strip()
+        return ""
+
     def _run_walk(
         self,
         *,
@@ -70,7 +81,7 @@ class SnmpLldpCollector:
 
     def collect(self, *, seed_device: str, params: dict[str, object]) -> list[LinkRecord]:
         host = str(params.get("host", "")).strip()
-        community = str(params.get("community", "")).strip()
+        community = self._resolve_community(params)
         timeout = int(params.get("timeout", 2))
         retries = int(params.get("retries", 1))
         port = int(params.get("port", 161))
@@ -78,7 +89,9 @@ class SnmpLldpCollector:
         if not host:
             raise ValueError("params.host is required for snmp method.")
         if not community:
-            raise ValueError("params.community is required for snmp method.")
+            raise ValueError(
+                "SNMP community is required. Set params.community or params.community_env."
+            )
         if not seed_device:
             raise ValueError("seed_device is required for snmp method.")
 

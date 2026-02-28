@@ -311,6 +311,24 @@ def get_run_headers(run: dict[str, Any]) -> list[str]:
     return read_headers(upload_path.read_bytes())
 
 
+def redact_sensitive_params(params: dict[str, Any]) -> dict[str, Any]:
+    sensitive_keys = {
+        "community",
+        "password",
+        "passphrase",
+        "auth_password",
+        "priv_password",
+        "token",
+    }
+    redacted: dict[str, Any] = {}
+    for key, value in params.items():
+        if key.lower() in sensitive_keys:
+            redacted[key] = "***"
+        else:
+            redacted[key] = value
+    return redacted
+
+
 def execute_reconcile_run(run_id: int) -> dict[str, Any]:
     run = get_reconcile_run(run_id)
     if not run:
@@ -801,6 +819,14 @@ def create_app() -> Flask:
             return jsonify({"error": "params object is required."}), 400
         if method in {"snmp", "ssh"} and not seed_device:
             return jsonify({"error": "seed_device is required for snmp/ssh."}), 400
+        if method == "snmp":
+            has_community = bool(str(params.get("community", "")).strip())
+            has_community_env = bool(str(params.get("community_env", "")).strip())
+            if not has_community and not has_community_env:
+                return (
+                    jsonify({"error": ("SNMP requires params.community or params.community_env.")}),
+                    400,
+                )
 
         import_run = get_import_run(import_id)
         if not import_run:
@@ -863,6 +889,7 @@ def create_app() -> Flask:
         run = get_reconcile_run(run_id)
         if not run:
             return jsonify({"error": "Reconcile run not found."}), 404
+        params = json.loads(run["params_json"] or "{}")
         return jsonify(
             {
                 "reconcile_run_id": run_id,
@@ -871,7 +898,7 @@ def create_app() -> Flask:
                 "status": run["status"],
                 "method": run["method"],
                 "seed_device": run["seed_device"],
-                "params": json.loads(run["params_json"] or "{}"),
+                "params": redact_sensitive_params(params),
                 "report": json.loads(run["report_json"]) if run.get("report_json") else None,
                 "error": run.get("error_message"),
             }

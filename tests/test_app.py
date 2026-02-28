@@ -609,6 +609,48 @@ class UploadSecurityTests(unittest.TestCase):
         execute_resp = self.client.post(f"/api/reconcile-runs/{run_id}/execute")
         self.assertEqual(execute_resp.status_code, 422)
 
+    def test_api_reconcile_get_run_redacts_sensitive_params(self):
+        csv_bytes = (
+            "Termination A Device,Termination A Name,Termination B Device,Termination B Name,Type\n"
+            "sw1,xe-0/0/1,sw2,xe-0/0/2,Cat6\n"
+        ).encode("utf-8")
+        create_resp = self.client.post(
+            "/api/imports",
+            data={"csv_file": (io.BytesIO(csv_bytes), "api-reconcile-redact.csv")},
+            content_type="multipart/form-data",
+        )
+        body = create_resp.get_json()
+        self.assertIsNotNone(body)
+        assert body is not None
+        import_id = body["import_id"]
+        self.client.put(
+            f"/api/imports/{import_id}/mapping",
+            json={"mapping": body["mapping_candidates"]},
+        )
+        self.client.post(f"/api/imports/{import_id}/execute")
+
+        create_run_resp = self.client.post(
+            "/api/reconcile-runs",
+            json={
+                "import_id": import_id,
+                "method": "snmp",
+                "seed_device": "sw1",
+                "params": {"host": "192.0.2.10", "community": "public"},
+            },
+        )
+        self.assertEqual(create_run_resp.status_code, 201)
+        create_run_body = create_run_resp.get_json()
+        self.assertIsNotNone(create_run_body)
+        assert create_run_body is not None
+        run_id = create_run_body["reconcile_run_id"]
+
+        get_resp = self.client.get(f"/api/reconcile-runs/{run_id}")
+        self.assertEqual(get_resp.status_code, 200)
+        get_body = get_resp.get_json()
+        self.assertIsNotNone(get_body)
+        assert get_body is not None
+        self.assertEqual(get_body["params"]["community"], "***")
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -72,6 +72,34 @@ class SnmpCollectorTests(unittest.TestCase):
                 params={"host": "192.0.2.10", "community": "public"},
             )
 
+    @patch("nbcart.reconcile.collectors.snmp.subprocess.run")
+    @patch.dict("os.environ", {"SNMP_COMMUNITY": "from-env"}, clear=True)
+    def test_collect_reads_community_from_env_name(self, run_mock):
+        def mk(stdout: str):
+            class Result:
+                pass
+
+            r = Result()
+            r.stdout = stdout
+            r.stderr = ""
+            r.returncode = 0
+            return r
+
+        run_mock.side_effect = [
+            mk('.1.0.8802.1.1.2.1.4.1.1.9.600.12.1 = STRING: "leaf-01"\n'),
+            mk('.1.0.8802.1.1.2.1.4.1.1.7.600.12.1 = STRING: "Ethernet1/1"\n'),
+            mk('.1.0.8802.1.1.2.1.3.7.1.4.12 = STRING: "xe-0/0/12"\n'),
+        ]
+
+        collector = SnmpLldpCollector()
+        links = collector.collect(
+            seed_device="spine-01",
+            params={"host": "192.0.2.10", "community_env": "SNMP_COMMUNITY"},
+        )
+        self.assertEqual(len(links), 1)
+        used_cmd = run_mock.call_args_list[0][0][0]
+        self.assertIn("from-env", used_cmd)
+
 
 if __name__ == "__main__":
     unittest.main()
