@@ -139,6 +139,8 @@ curl -X POST "http://127.0.0.1:8000/api/reconcile-runs/1/execute?async=true"
 curl "http://127.0.0.1:8000/api/reconcile-runs/1"
 ```
 
+Supported SSH vendor profiles: `arista_eos`, `cisco_ios`, `cisco_nxos`, `juniper_junos`, `fortinet_fortiswitch_os`.
+
 ### Directory Structure
 
 ```text

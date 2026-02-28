@@ -860,6 +860,8 @@ class UploadSecurityTests(unittest.TestCase):
         vendors = body["vendors"]
         self.assertTrue(any(v["name"] == "cisco_ios" for v in vendors))
         self.assertTrue(any(v["name"] == "juniper_junos" for v in vendors))
+        self.assertTrue(any(v["name"] == "arista_eos" for v in vendors))
+        self.assertTrue(any(v["name"] == "fortinet_fortiswitch_os" for v in vendors))
 
 
 if __name__ == "__main__":

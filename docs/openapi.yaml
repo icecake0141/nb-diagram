@@ -191,7 +191,7 @@ paths:
                     payload: { neighbors: [{ local_device, local_interface, remote_device, remote_interface }] }
                     snmp: { host, community|community_env, timeout?, retries?, port? }
                     ssh: { neighbors? } or { host, username, (command|vendor), timeout? }
-                    ssh vendor: arista_eos | cisco_ios | cisco_nxos | juniper_junos
+                    ssh vendor: arista_eos | cisco_ios | cisco_nxos | juniper_junos | fortinet_fortiswitch_os
       responses:
         '201':
           description: Reconcile run created
@@ -268,7 +268,7 @@ paths:
                     payload: { neighbors: [{ local_device, local_interface, remote_device, remote_interface }] }
                     snmp: { host, community|community_env, timeout?, retries?, port? }
                     ssh: { neighbors? } or { host, username, (command|vendor), timeout? }
-                    ssh vendor: arista_eos | cisco_ios | cisco_nxos | juniper_junos
+                    ssh vendor: arista_eos | cisco_ios | cisco_nxos | juniper_junos | fortinet_fortiswitch_os
       responses:
         '200':
           description: Reconcile report
