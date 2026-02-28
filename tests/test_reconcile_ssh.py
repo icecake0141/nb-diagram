@@ -50,6 +50,49 @@ class SshCollectorTests(unittest.TestCase):
         self.assertEqual(used_cmd[-1], "show lldp neighbors detail")
 
     @patch("nbcart.reconcile.collectors.ssh.subprocess.run")
+    def test_collect_uses_cisco_nxos_vendor_parser(self, run_mock):
+        class Result:
+            returncode = 0
+            stderr = ""
+            stdout = (
+                '{"TABLE_nbor":{"ROW_nbor":[{"l_port_id":"Ethernet1/1","sys_name":"leaf-01",'
+                '"port_id":"Ethernet2/1"}]}}'
+            )
+
+        run_mock.return_value = Result()
+        collector = SshLldpCollector()
+        links = collector.collect(
+            seed_device="spine-01",
+            params={"host": "192.0.2.20", "username": "netops", "vendor": "cisco_nxos"},
+        )
+        self.assertEqual(len(links), 1)
+        used_cmd = run_mock.call_args[0][0]
+        self.assertEqual(used_cmd[-1], "show lldp neighbors detail | json")
+
+    @patch("nbcart.reconcile.collectors.ssh.subprocess.run")
+    def test_collect_uses_juniper_junos_vendor_parser(self, run_mock):
+        class Result:
+            returncode = 0
+            stderr = ""
+            stdout = (
+                '{"lldp-neighbors-information":[{"lldp-neighbor-information":[{'
+                '"lldp-local-port-id":[{"data":"ge-0/0/1"}],'
+                '"lldp-remote-system-name":[{"data":"leaf-01"}],'
+                '"lldp-remote-port-id":[{"data":"Ethernet1/1"}]'
+                "}]}]}"
+            )
+
+        run_mock.return_value = Result()
+        collector = SshLldpCollector()
+        links = collector.collect(
+            seed_device="spine-01",
+            params={"host": "192.0.2.20", "username": "netops", "vendor": "juniper_junos"},
+        )
+        self.assertEqual(len(links), 1)
+        used_cmd = run_mock.call_args[0][0]
+        self.assertEqual(used_cmd[-1], "show lldp neighbors detail | display json")
+
+    @patch("nbcart.reconcile.collectors.ssh.subprocess.run")
     def test_collect_uses_arista_vendor_parser(self, run_mock):
         class Result:
             returncode = 0

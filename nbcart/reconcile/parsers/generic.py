@@ -144,9 +144,7 @@ def parse_generic(seed_device: str, stdout: str) -> list[LinkRecord]:
         if matched:
             continue
 
-        pipe_parts = [
-            part.strip() for part in re.split(r"\s*\|\s*", line.strip()) if part.strip()
-        ]
+        pipe_parts = [part.strip() for part in re.split(r"\s*\|\s*", line.strip()) if part.strip()]
         if len(pipe_parts) >= 3:
             local_interface, remote_device, remote_interface = pipe_parts[:3]
             if all((local_interface, remote_device, remote_interface)):
@@ -161,9 +159,7 @@ def parse_generic(seed_device: str, stdout: str) -> list[LinkRecord]:
         local_interface, remote_device, remote_interface = parts[:3]
         if not all((local_interface, remote_device, remote_interface)):
             continue
-        links.append(
-            normalize_link(seed_device, local_interface, remote_device, remote_interface)
-        )
+        links.append(normalize_link(seed_device, local_interface, remote_device, remote_interface))
 
     flush_block()
     return _unique(links)

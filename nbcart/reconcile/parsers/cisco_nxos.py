@@ -6,7 +6,7 @@ from nbcart.reconcile.models import LinkRecord
 from nbcart.reconcile.normalize import normalize_link
 
 
-def parse_arista_eos(seed_device: str, stdout: str) -> list[LinkRecord]:
+def parse_cisco_nxos(seed_device: str, stdout: str) -> list[LinkRecord]:
     text = stdout.strip()
     if not text:
         return []
@@ -15,26 +15,26 @@ def parse_arista_eos(seed_device: str, stdout: str) -> list[LinkRecord]:
     except json.JSONDecodeError:
         return []
 
-    neighbors = payload.get("lldpNeighbors") if isinstance(payload, dict) else None
-    if not isinstance(neighbors, list):
-        return []
+    rows = []
+    if isinstance(payload, dict):
+        table = payload.get("TABLE_nbor")
+        if isinstance(table, dict):
+            row = table.get("ROW_nbor")
+            if isinstance(row, list):
+                rows.extend([item for item in row if isinstance(item, dict)])
+            elif isinstance(row, dict):
+                rows.append(row)
 
     links: list[LinkRecord] = []
-    for item in neighbors:
-        if not isinstance(item, dict):
-            continue
+    for item in rows:
         local_interface = (
-            str(item.get("port", "")).strip() or str(item.get("localInterface", "")).strip()
+            str(item.get("l_port_id", "")).strip() or str(item.get("local_port_id", "")).strip()
         )
         remote_device = (
-            str(item.get("neighborDevice", "")).strip()
-            or str(item.get("systemName", "")).strip()
-            or str(item.get("chassisId", "")).strip()
+            str(item.get("sys_name", "")).strip() or str(item.get("device_id", "")).strip()
         )
         remote_interface = (
-            str(item.get("neighborPort", "")).strip()
-            or str(item.get("portId", "")).strip()
-            or str(item.get("remoteInterface", "")).strip()
+            str(item.get("port_id", "")).strip() or str(item.get("remote_port_id", "")).strip()
         )
         if not all((local_interface, remote_device, remote_interface)):
             continue
