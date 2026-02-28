@@ -571,7 +571,7 @@ class UploadSecurityTests(unittest.TestCase):
         )
         self.assertEqual(response.status_code, 409)
 
-    def test_api_reconcile_snmp_returns_not_implemented(self):
+    def test_api_reconcile_snmp_requires_host_param(self):
         csv_bytes = (
             "Termination A Device,Termination A Name,Termination B Device,Termination B Name,Type\n"
             "sw1,xe-0/0/1,sw2,xe-0/0/2,Cat6\n"
@@ -607,7 +607,7 @@ class UploadSecurityTests(unittest.TestCase):
         run_id = create_run_body["reconcile_run_id"]
 
         execute_resp = self.client.post(f"/api/reconcile-runs/{run_id}/execute")
-        self.assertEqual(execute_resp.status_code, 501)
+        self.assertEqual(execute_resp.status_code, 422)
 
 
 if __name__ == "__main__":
