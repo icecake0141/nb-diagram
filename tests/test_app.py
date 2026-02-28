@@ -851,6 +851,16 @@ class UploadSecurityTests(unittest.TestCase):
             time.sleep(0.02)
         self.assertTrue(completed)
 
+    def test_api_reconcile_ssh_vendors_lists_profiles(self):
+        resp = self.client.get("/api/reconcile/ssh-vendors")
+        self.assertEqual(resp.status_code, 200)
+        body = resp.get_json()
+        self.assertIsNotNone(body)
+        assert body is not None
+        vendors = body["vendors"]
+        self.assertTrue(any(v["name"] == "cisco_ios" for v in vendors))
+        self.assertTrue(any(v["name"] == "juniper_junos" for v in vendors))
+
 
 if __name__ == "__main__":
     unittest.main()

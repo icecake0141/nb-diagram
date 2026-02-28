@@ -21,6 +21,7 @@ from nbcart.graph import build_device_graph, build_graph, list_racks
 from nbcart.ingest import normalize_color, parse_cables_csv
 from nbcart.models import CableRow
 from nbcart.reconcile import reconcile_links
+from nbcart.reconcile.collectors.ssh import SSH_VENDOR_PROFILES
 
 __all__ = [
     "app",
@@ -361,8 +362,7 @@ def validate_reconcile_params(method: str, params: dict[str, Any]) -> str | None
             return "SSH requires params.username unless params.neighbors is provided."
         if not has_command and not has_vendor:
             return (
-                "SSH requires params.command or params.vendor "
-                "unless params.neighbors is provided."
+                "SSH requires params.command or params.vendor unless params.neighbors is provided."
             )
         return None
     return None
@@ -1023,6 +1023,17 @@ def create_app() -> Flask:
             return jsonify({"error": str(exc)}), 501
         except Exception as exc:
             return jsonify({"error": str(exc)}), 422
+
+    @flask_app.get("/api/reconcile/ssh-vendors")
+    def api_get_reconcile_ssh_vendors():
+        return jsonify(
+            {
+                "vendors": [
+                    {"name": name, "default_command": profile["command"]}
+                    for name, profile in sorted(SSH_VENDOR_PROFILES.items())
+                ]
+            }
+        )
 
     @flask_app.get("/api/openapi.yaml")
     def api_openapi():

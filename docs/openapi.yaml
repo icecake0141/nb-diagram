@@ -282,6 +282,12 @@ paths:
           description: Reconcile failed (validation/runtime error)
         '501':
           description: Collector backend is unavailable
+  /api/reconcile/ssh-vendors:
+    get:
+      summary: List supported SSH vendor profiles and default commands
+      responses:
+        '200':
+          description: Supported vendor profile list
   /api/openapi.yaml:
     get:
       summary: Download OpenAPI specification
