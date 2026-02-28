@@ -124,6 +124,16 @@ curl -X POST -H "Content-Type: application/json" \
   }' \
   http://127.0.0.1:8000/api/reconcile-runs
 
+# Persisted run with SSH vendor profile (command auto-selected)
+curl -X POST -H "Content-Type: application/json" \
+  -d '{
+    "import_id": 1,
+    "method": "ssh",
+    "seed_device": "sw1",
+    "params": {"host": "192.0.2.20", "username": "netops", "vendor": "cisco_ios"}
+  }' \
+  http://127.0.0.1:8000/api/reconcile-runs
+
 # Execute persisted run asynchronously and poll status
 curl -X POST "http://127.0.0.1:8000/api/reconcile-runs/1/execute?async=true"
 curl "http://127.0.0.1:8000/api/reconcile-runs/1"

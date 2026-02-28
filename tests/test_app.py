@@ -762,6 +762,37 @@ class UploadSecurityTests(unittest.TestCase):
         )
         self.assertEqual(compare_resp.status_code, 200)
 
+    def test_api_reconcile_compare_rejects_ssh_without_command_or_vendor(self):
+        csv_bytes = (
+            "Termination A Device,Termination A Name,Termination B Device,Termination B Name,Type\n"
+            "sw1,xe-0/0/1,sw2,xe-0/0/2,Cat6\n"
+        ).encode("utf-8")
+        create_resp = self.client.post(
+            "/api/imports",
+            data={"csv_file": (io.BytesIO(csv_bytes), "api-reconcile-compare-ssh-validate.csv")},
+            content_type="multipart/form-data",
+        )
+        body = create_resp.get_json()
+        self.assertIsNotNone(body)
+        assert body is not None
+        import_id = body["import_id"]
+        self.client.put(
+            f"/api/imports/{import_id}/mapping",
+            json={"mapping": body["mapping_candidates"]},
+        )
+        self.client.post(f"/api/imports/{import_id}/execute")
+
+        compare_resp = self.client.post(
+            "/api/reconcile/compare",
+            json={
+                "import_id": import_id,
+                "method": "ssh",
+                "seed_device": "sw1",
+                "params": {"host": "192.0.2.20", "username": "netops"},
+            },
+        )
+        self.assertEqual(compare_resp.status_code, 400)
+
     def test_api_reconcile_execute_async_completes_in_background(self):
         csv_bytes = (
             "Termination A Device,Termination A Name,Termination B Device,Termination B Name,Type\n"
