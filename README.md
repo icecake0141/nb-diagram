@@ -123,6 +123,10 @@ curl -X POST -H "Content-Type: application/json" \
     "params": {"host": "192.0.2.10", "community_env": "SNMP_COMMUNITY"}
   }' \
   http://127.0.0.1:8000/api/reconcile-runs
+
+# Execute persisted run asynchronously and poll status
+curl -X POST "http://127.0.0.1:8000/api/reconcile-runs/1/execute?async=true"
+curl "http://127.0.0.1:8000/api/reconcile-runs/1"
 ```
 
 ### Directory Structure
