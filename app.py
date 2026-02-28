@@ -329,6 +329,24 @@ def redact_sensitive_params(params: dict[str, Any]) -> dict[str, Any]:
     return redacted
 
 
+def validate_reconcile_params(method: str, params: dict[str, Any]) -> str | None:
+    if method == "payload":
+        neighbors = params.get("neighbors")
+        if not isinstance(neighbors, list):
+            return "payload method requires params.neighbors as a list."
+        return None
+    if method == "snmp":
+        has_host = bool(str(params.get("host", "")).strip())
+        has_community = bool(str(params.get("community", "")).strip())
+        has_community_env = bool(str(params.get("community_env", "")).strip())
+        if not has_host:
+            return "SNMP requires params.host."
+        if not has_community and not has_community_env:
+            return "SNMP requires params.community or params.community_env."
+        return None
+    return None
+
+
 def execute_reconcile_run(run_id: int) -> dict[str, Any]:
     run = get_reconcile_run(run_id)
     if not run:
@@ -819,14 +837,9 @@ def create_app() -> Flask:
             return jsonify({"error": "params object is required."}), 400
         if method in {"snmp", "ssh"} and not seed_device:
             return jsonify({"error": "seed_device is required for snmp/ssh."}), 400
-        if method == "snmp":
-            has_community = bool(str(params.get("community", "")).strip())
-            has_community_env = bool(str(params.get("community_env", "")).strip())
-            if not has_community and not has_community_env:
-                return (
-                    jsonify({"error": ("SNMP requires params.community or params.community_env.")}),
-                    400,
-                )
+        validation_error = validate_reconcile_params(method, params)
+        if validation_error:
+            return jsonify({"error": validation_error}), 400
 
         import_run = get_import_run(import_id)
         if not import_run:
