@@ -344,6 +344,20 @@ def validate_reconcile_params(method: str, params: dict[str, Any]) -> str | None
         if not has_community and not has_community_env:
             return "SNMP requires params.community or params.community_env."
         return None
+    if method == "ssh":
+        has_neighbors = isinstance(params.get("neighbors"), list)
+        has_host = bool(str(params.get("host", "")).strip())
+        has_username = bool(str(params.get("username", "")).strip())
+        has_command = bool(str(params.get("command", "")).strip())
+        if has_neighbors:
+            return None
+        if not has_host:
+            return "SSH requires params.host unless params.neighbors is provided."
+        if not has_username:
+            return "SSH requires params.username unless params.neighbors is provided."
+        if not has_command:
+            return "SSH requires params.command unless params.neighbors is provided."
+        return None
     return None
 
 

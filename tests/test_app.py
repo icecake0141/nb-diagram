@@ -722,6 +722,45 @@ class UploadSecurityTests(unittest.TestCase):
         self.assertEqual(summary["missing_count"], 0)
         self.assertEqual(summary["unexpected_count"], 0)
 
+    def test_api_reconcile_compare_supports_ssh_neighbors_param(self):
+        csv_bytes = (
+            "Termination A Device,Termination A Name,Termination B Device,Termination B Name,Type\n"
+            "sw1,xe-0/0/1,sw2,xe-0/0/2,Cat6\n"
+        ).encode("utf-8")
+        create_resp = self.client.post(
+            "/api/imports",
+            data={"csv_file": (io.BytesIO(csv_bytes), "api-reconcile-compare-ssh.csv")},
+            content_type="multipart/form-data",
+        )
+        body = create_resp.get_json()
+        self.assertIsNotNone(body)
+        assert body is not None
+        import_id = body["import_id"]
+        self.client.put(
+            f"/api/imports/{import_id}/mapping",
+            json={"mapping": body["mapping_candidates"]},
+        )
+        self.client.post(f"/api/imports/{import_id}/execute")
+
+        compare_resp = self.client.post(
+            "/api/reconcile/compare",
+            json={
+                "import_id": import_id,
+                "method": "ssh",
+                "seed_device": "sw1",
+                "params": {
+                    "neighbors": [
+                        {
+                            "local_interface": "xe-0/0/1",
+                            "remote_device": "sw2",
+                            "remote_interface": "xe-0/0/2",
+                        }
+                    ]
+                },
+            },
+        )
+        self.assertEqual(compare_resp.status_code, 200)
+
 
 if __name__ == "__main__":
     unittest.main()

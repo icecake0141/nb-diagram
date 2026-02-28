@@ -236,7 +236,7 @@ If major columns are missing, the UI shows the undetected column list.
 - `POST /api/reconcile-runs`
   - Create a reconcile run using completed import data plus observed LLDP source.
 - `POST /api/reconcile-runs/<id>/execute`
-  - Execute topology reconciliation (`payload` works now, `snmp`/`ssh` are pluggable).
+  - Execute topology reconciliation (`payload`, `snmp`, and `ssh` methods are available).
 - `GET /api/reconcile-runs/<id>`
   - Check reconcile status and diff report (`missing/unexpected/mismatched`).
 - `POST /api/reconcile/compare`
@@ -457,7 +457,7 @@ ruff check . --fix
 - `POST /api/reconcile-runs`
   - 完了済み import データと観測 LLDP データを使って比較 run を作成
 - `POST /api/reconcile-runs/<id>/execute`
-  - トポロジー比較を実行（`payload` は実装済み、`snmp`/`ssh` は差し替え可能）
+  - トポロジー比較を実行（`payload`/`snmp`/`ssh` を利用可能）
 - `GET /api/reconcile-runs/<id>`
   - 比較状態と差分レポート（`missing/unexpected/mismatched`）を取得
 - `POST /api/reconcile/compare`
