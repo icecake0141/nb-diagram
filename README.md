@@ -233,6 +233,12 @@ If major columns are missing, the UI shows the undetected column list.
   - Download export artifacts from completed imports.
 - `POST /api/results/<id>/drawio-layout`
   - Download drawio generated from current node positions sent by the UI.
+- `POST /api/reconcile-runs`
+  - Create a reconcile run using completed import data plus observed LLDP source.
+- `POST /api/reconcile-runs/<id>/execute`
+  - Execute topology reconciliation (`payload` works now, `snmp`/`ssh` are pluggable).
+- `GET /api/reconcile-runs/<id>`
+  - Check reconcile status and diff report (`missing/unexpected/mismatched`).
 - `GET /api/openapi.yaml`
   - Download the pinned OpenAPI contract.
 
@@ -446,6 +452,12 @@ ruff check . --fix
   - 完了済み import のエクスポートを取得
 - `POST /api/results/<id>/drawio-layout`
   - UI から送信した現在ノード座標で drawio を生成して取得
+- `POST /api/reconcile-runs`
+  - 完了済み import データと観測 LLDP データを使って比較 run を作成
+- `POST /api/reconcile-runs/<id>/execute`
+  - トポロジー比較を実行（`payload` は実装済み、`snmp`/`ssh` は差し替え可能）
+- `GET /api/reconcile-runs/<id>`
+  - 比較状態と差分レポート（`missing/unexpected/mismatched`）を取得
 - `GET /api/openapi.yaml`
   - OpenAPI 契約を取得
 

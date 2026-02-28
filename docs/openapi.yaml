@@ -1,8 +1,8 @@
 openapi: 3.1.0
 info:
   title: nb-cartographer API
-  version: 1.0.0
-  description: API-first import, mapping, execute, graph, and export workflow.
+  version: 1.1.0
+  description: API-first import, mapping, execute, graph, export, and reconcile workflow.
 servers:
   - url: http://localhost:8000
 paths:
@@ -165,6 +165,68 @@ paths:
           description: Invalid positions payload
         '404':
           description: Result not found
+  /api/reconcile-runs:
+    post:
+      summary: Create reconcile run
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [import_id, method, params]
+              properties:
+                import_id:
+                  type: integer
+                method:
+                  type: string
+                  enum: [payload, snmp, ssh]
+                seed_device:
+                  type: string
+                params:
+                  type: object
+                  additionalProperties: true
+      responses:
+        '201':
+          description: Reconcile run created
+        '400':
+          description: Invalid request payload
+        '404':
+          description: Import not found
+        '409':
+          description: Import not completed
+  /api/reconcile-runs/{run_id}:
+    get:
+      summary: Get reconcile run status and report
+      parameters:
+        - in: path
+          name: run_id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Reconcile run status
+        '404':
+          description: Reconcile run not found
+  /api/reconcile-runs/{run_id}/execute:
+    post:
+      summary: Execute reconcile run
+      parameters:
+        - in: path
+          name: run_id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Reconcile completed
+        '404':
+          description: Reconcile run not found
+        '422':
+          description: Reconcile failed (validation/runtime error)
+        '501':
+          description: Collector backend is unavailable
   /api/openapi.yaml:
     get:
       summary: Download OpenAPI specification
