@@ -21,3 +21,29 @@
 
 - Vite output path: `static/dist/`
 - Runtime fallback path: `static/`
+
+---
+
+## 日本語訳
+
+### 正本ソース
+
+- `frontend/src/app-main.ts`
+- `frontend/src/diagram.ts`
+- `frontend/src/import-workflow.ts`
+
+### コマンド
+
+- Node ツールチェーンなしで同期:
+  - `python3 scripts/sync_frontend.py`
+- 依存関係インストール（Node 必須）:
+  - `npm install`
+- 開発サーバ:
+  - `npm run frontend:dev`
+- 本番ビルド:
+  - `npm run frontend:build`
+
+### ビルド出力
+
+- Vite 出力先: `static/dist/`
+- ランタイムのフォールバック先: `static/`
