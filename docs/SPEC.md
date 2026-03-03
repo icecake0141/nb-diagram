@@ -73,7 +73,7 @@ Related endpoints:
 - `GET /api/imports/<id>`
 - `POST /api/results/<id>/drawio-layout`
 - `POST /api/reconcile-runs`
-- `POST /api/reconcile-runs/<id>/execute`
+- `POST /api/reconcile-runs/<id>/execute` (`?async=true` supported)
 - `GET /api/reconcile-runs/<id>`
 - `POST /api/reconcile/compare`
 - `GET /api/reconcile/ssh-vendors`
@@ -168,7 +168,7 @@ Main UI actions:
 - `GET /api/imports/<id>`
 - `POST /api/results/<id>/drawio-layout`
 - `POST /api/reconcile-runs`
-- `POST /api/reconcile-runs/<id>/execute`
+- `POST /api/reconcile-runs/<id>/execute`（`?async=true` 対応）
 - `GET /api/reconcile-runs/<id>`
 - `POST /api/reconcile/compare`
 - `GET /api/reconcile/ssh-vendors`
